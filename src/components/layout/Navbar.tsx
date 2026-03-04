@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -13,10 +13,18 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [menuHeight, setMenuHeight] = useState(0);
+
+  useEffect(() => {
+    if (menuRef.current) {
+      setMenuHeight(menuRef.current.scrollHeight);
+    }
+  }, [mobileOpen]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-midnight/80 backdrop-blur-md">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-midnight/80 backdrop-blur-md" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/logo.png"
@@ -57,8 +65,9 @@ export function Navbar() {
         {/* Mobile toggle */}
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-paa-gray transition-colors hover:text-accent md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-paa-gray transition-colors hover:text-accent md:hidden"
           aria-label="Toggle menu"
+          aria-expanded={mobileOpen}
         >
           <svg
             className="h-6 w-6"
@@ -85,30 +94,32 @@ export function Navbar() {
         </button>
       </nav>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="border-t border-white/10 bg-midnight/95 backdrop-blur-md md:hidden">
-          <div className="flex flex-col gap-2 px-6 py-4">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="rounded-lg px-4 py-3 font-heading text-sm uppercase tracking-wider text-paa-gray transition-colors hover:bg-white/5 hover:text-accent"
-              >
-                {link.label}
-              </Link>
-            ))}
+      {/* Mobile menu — animated slide-down */}
+      <div
+        ref={menuRef}
+        className="overflow-hidden border-t border-white/10 bg-midnight/95 backdrop-blur-md transition-[max-height] duration-300 ease-in-out md:hidden"
+        style={{ maxHeight: mobileOpen ? `${menuHeight}px` : "0px", borderTopWidth: mobileOpen ? undefined : 0 }}
+      >
+        <div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto px-4 py-4 sm:px-6" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
+          {navLinks.map((link) => (
             <Link
-              href="/#get-involved"
+              key={link.href}
+              href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="mt-2 rounded-full bg-accent px-5 py-3 text-center font-heading text-sm font-bold uppercase tracking-wider text-midnight transition-colors hover:bg-accent-light"
+              className="rounded-lg px-4 py-3 font-heading text-sm uppercase tracking-wider text-paa-gray transition-colors hover:bg-white/5 hover:text-accent"
             >
-              Get Involved
+              {link.label}
             </Link>
-          </div>
+          ))}
+          <Link
+            href="/#get-involved"
+            onClick={() => setMobileOpen(false)}
+            className="mt-2 rounded-full bg-accent px-5 py-3 text-center font-heading text-sm font-bold uppercase tracking-wider text-midnight transition-colors hover:bg-accent-light"
+          >
+            Get Involved
+          </Link>
         </div>
-      )}
+      </div>
     </header>
   );
 }

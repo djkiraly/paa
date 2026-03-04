@@ -29,7 +29,7 @@ export function InitiativeCard({
   const statusClass = statusColors[status] || statusColors.active;
 
   return (
-    <div className="group rounded-xl border border-white/10 bg-navy/50 p-6 transition-all hover:border-accent/30 hover:bg-navy/80">
+    <div className="group rounded-xl border border-white/10 bg-navy/50 p-4 transition-all hover:border-accent/30 hover:bg-navy/80 sm:p-6">
       <div className="mb-4 flex items-start justify-between">
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent transition-colors group-hover:bg-accent/20">
           <svg

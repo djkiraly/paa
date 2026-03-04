@@ -48,6 +48,11 @@ code, pre {
   font-family: var(--font-mono), monospace;
 }
 
+/* Clean tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* Runway dash divider */
 .runway-divider {
   display: flex;
@@ -70,6 +75,21 @@ code, pre {
   background: var(--paa-accent);
   border-radius: 2px;
   opacity: 0.5;
+}
+
+@media (max-width: 640px) {
+  .runway-dash {
+    width: 2rem;
+    height: 3px;
+  }
+  .runway-dash-short {
+    width: 1rem;
+    height: 3px;
+  }
+  .runway-divider {
+    gap: 0.375rem;
+    padding: 1.5rem 0;
+  }
 }
 
 /* Topographic texture overlay */

@@ -11,7 +11,7 @@ const footerLinks = [
 export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-midnight">
-      <div className="mx-auto max-w-7xl px-6 py-12">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12">
         <div className="grid gap-8 md:grid-cols-3">
           {/* Brand */}
           <div>
@@ -45,7 +45,7 @@ export function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-sm text-paa-gray transition-colors hover:text-accent"
+                  className="py-1 text-sm text-paa-gray transition-colors hover:text-accent sm:py-0"
                 >
                   {link.label}
                 </Link>
@@ -62,7 +62,7 @@ export function Footer() {
               <p>Scottsbluff, Nebraska</p>
               <a
                 href="mailto:info@panhandleaviationalliance.org"
-                className="transition-colors hover:text-accent"
+                className="break-all transition-colors hover:text-accent"
               >
                 info@panhandleaviationalliance.org
               </a>

@@ -39,7 +39,7 @@ export default async function HomePage() {
             </p>
           </ScrollReveal>
           <ScrollReveal delay={100}>
-            <h1 className="mb-6 font-heading text-5xl font-bold leading-tight text-paa-white md:text-7xl lg:text-8xl">
+            <h1 className="mb-6 font-heading text-4xl font-bold leading-tight text-paa-white sm:text-5xl md:text-7xl lg:text-8xl">
               Connecting the
               <br />
               <span className="text-accent">Panhandle</span> to the World
@@ -73,14 +73,14 @@ export default async function HomePage() {
 
       {/* Mission Band */}
       <section className="topo-texture border-y border-white/10 bg-navy/30">
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20">
+        <div className="relative z-10 mx-auto max-w-7xl px-6 py-12 md:py-20">
           <ScrollReveal>
             <blockquote className="mb-12 text-center font-heading text-2xl font-semibold italic text-paa-white md:text-3xl">
               &ldquo;Every runway is a lifeline. Every flight connects our
               community to opportunity.&rdquo;
             </blockquote>
           </ScrollReveal>
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3 md:gap-8">
             {[
               {
                 title: "Advocate",
@@ -120,13 +120,13 @@ export default async function HomePage() {
       </div>
 
       {/* Stats Grid */}
-      <section className="mx-auto max-w-7xl px-6 py-20">
+      <section className="mx-auto max-w-7xl px-6 py-12 md:py-20">
         <ScrollReveal>
           <div className="mb-12 text-center">
             <p className="mb-2 font-heading text-sm font-semibold uppercase tracking-[0.2em] text-accent">
               By the Numbers
             </p>
-            <h2 className="font-heading text-4xl font-bold text-paa-white md:text-5xl">
+            <h2 className="font-heading text-3xl font-bold text-paa-white sm:text-4xl md:text-5xl">
               KBFF Airport Statistics
             </h2>
           </div>
@@ -158,14 +158,14 @@ export default async function HomePage() {
 
       {/* Regional Importance */}
       <section className="topo-texture border-y border-white/10 bg-navy/20">
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20">
+        <div className="relative z-10 mx-auto max-w-7xl px-6 py-12 md:py-20">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <ScrollReveal>
               <div>
                 <p className="mb-2 font-heading text-sm font-semibold uppercase tracking-[0.2em] text-accent">
                   Regional Impact
                 </p>
-                <h2 className="mb-6 font-heading text-4xl font-bold text-paa-white">
+                <h2 className="mb-6 font-heading text-3xl font-bold text-paa-white sm:text-4xl">
                   The Heart of Western Nebraska Aviation
                 </h2>
                 <div className="space-y-4 text-sm leading-relaxed text-paa-gray">
@@ -190,7 +190,7 @@ export default async function HomePage() {
               </div>
             </ScrollReveal>
             <ScrollReveal delay={200}>
-              <div className="rounded-xl border border-white/10 bg-navy/50 p-8">
+              <div className="rounded-xl border border-white/10 bg-navy/50 p-5 sm:p-8">
                 <h3 className="mb-6 font-heading text-lg font-bold uppercase tracking-wider text-paa-white">
                   Service Area
                 </h3>
@@ -236,13 +236,13 @@ export default async function HomePage() {
       </section>
 
       {/* Initiatives */}
-      <section className="mx-auto max-w-7xl px-6 py-20">
+      <section className="mx-auto max-w-7xl px-6 py-12 md:py-20">
         <ScrollReveal>
           <div className="mb-12 text-center">
             <p className="mb-2 font-heading text-sm font-semibold uppercase tracking-[0.2em] text-accent">
               What We Do
             </p>
-            <h2 className="font-heading text-4xl font-bold text-paa-white md:text-5xl">
+            <h2 className="font-heading text-3xl font-bold text-paa-white sm:text-4xl md:text-5xl">
               Our Initiatives
             </h2>
           </div>
@@ -275,18 +275,18 @@ export default async function HomePage() {
         id="get-involved"
         className="topo-texture border-t border-white/10 bg-navy/20"
       >
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20">
+        <div className="relative z-10 mx-auto max-w-7xl px-6 py-12 md:py-20">
           <ScrollReveal>
             <div className="mb-12 text-center">
               <p className="mb-2 font-heading text-sm font-semibold uppercase tracking-[0.2em] text-accent">
                 Join Us
               </p>
-              <h2 className="font-heading text-4xl font-bold text-paa-white md:text-5xl">
+              <h2 className="font-heading text-3xl font-bold text-paa-white sm:text-4xl md:text-5xl">
                 Get Involved
               </h2>
             </div>
           </ScrollReveal>
-          <div className="grid gap-12 lg:grid-cols-2">
+          <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
             <ScrollReveal>
               <div>
                 <h3 className="mb-4 font-heading text-2xl font-bold text-paa-white">

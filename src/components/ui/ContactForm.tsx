@@ -44,7 +44,7 @@ export function ContactForm() {
 
   if (state === "success") {
     return (
-      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-8 text-center">
+      <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-center sm:p-8">
         <div className="mb-2 text-2xl">&#10003;</div>
         <h3 className="mb-2 font-heading text-lg font-bold text-paa-white">
           Message Sent

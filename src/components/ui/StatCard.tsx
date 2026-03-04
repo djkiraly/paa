@@ -20,8 +20,8 @@ export function StatCard({
   year,
 }: StatCardProps) {
   return (
-    <div className="group rounded-xl border border-white/10 bg-navy/50 p-6 transition-all hover:border-accent/30 hover:bg-navy/80">
-      <div className="mb-2 font-heading text-3xl font-bold text-accent lg:text-4xl">
+    <div className="group rounded-xl border border-white/10 bg-navy/50 p-4 transition-all hover:border-accent/30 hover:bg-navy/80 sm:p-6">
+      <div className="mb-2 font-heading text-2xl font-bold text-accent sm:text-3xl lg:text-4xl">
         {numericValue ? (
           <AnimatedCounter
             value={numericValue}
