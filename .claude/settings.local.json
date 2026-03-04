@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm add:*)",
+      "Bash(rm:*)",
+      "Bash(pnpm build:*)",
+      "Bash(node:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(find src:*)",
+      "Bash(npx auth:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(pnpm db:push:*)",
+      "Bash(pnpm db:seed:*)",
+      "Bash(npx tsx:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

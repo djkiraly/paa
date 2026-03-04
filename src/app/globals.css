@@ -1,26 +1,122 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paa-midnight: #0c1a2e;
+  --paa-navy: #132b4a;
+  --paa-slate: #1a3a6b;
+  --paa-accent: #2d6eb5;
+  --paa-accent-light: #4a8fd4;
+  --paa-accent-dark: #1f5a9a;
+  --paa-sky: #7ab8e0;
+  --paa-sky-light: #c8e2f5;
+  --paa-white: #f0f6fc;
+  --paa-gray: #8da4bf;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-midnight: var(--paa-midnight);
+  --color-navy: var(--paa-navy);
+  --color-slate-dark: var(--paa-slate);
+  --color-accent: var(--paa-accent);
+  --color-accent-light: var(--paa-accent-light);
+  --color-accent-dark: var(--paa-accent-dark);
+  --color-sky: var(--paa-sky);
+  --color-sky-light: var(--paa-sky-light);
+  --color-paa-white: var(--paa-white);
+  --color-paa-gray: var(--paa-gray);
+  --font-heading: var(--font-barlow);
+  --font-body: var(--font-source-serif);
+  --font-mono: var(--font-jetbrains);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Force dark theme */
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paa-midnight);
+  color: var(--paa-white);
+  font-family: var(--font-body), Georgia, serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading), "Arial Narrow", sans-serif;
+}
+
+code, pre {
+  font-family: var(--font-mono), monospace;
+}
+
+/* Runway dash divider */
+.runway-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 0;
+}
+
+.runway-dash {
+  width: 3rem;
+  height: 4px;
+  background: var(--paa-accent);
+  border-radius: 2px;
+}
+
+.runway-dash-short {
+  width: 1.5rem;
+  height: 4px;
+  background: var(--paa-accent);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+/* Topographic texture overlay */
+.topo-texture {
+  position: relative;
+}
+
+.topo-texture::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5c13.807 0 25 11.193 25 25S43.807 55 30 55 5 43.807 5 30 16.193 5 30 5zm0 10c-8.284 0-15 6.716-15 15s6.716 15 15 15 15-6.716 15-15-6.716-15-15-15zm0 5c5.523 0 10 4.477 10 10s-4.477 10-10 10-10-4.477-10-10 4.477-10 10-10z' fill='%232d6eb5' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scroll animations */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--paa-midnight);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--paa-slate);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--paa-accent);
 }

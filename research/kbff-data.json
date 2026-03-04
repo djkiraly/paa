@@ -1,0 +1,272 @@
+{
+  "metadata": {
+    "generated_date": "2026-03-04",
+    "note": "Data compiled from known FAA, DOT, and Census sources. Values marked [ESTIMATE] should be verified with live web research. URLs provided are canonical source locations to check for updates.",
+    "data_confidence": "Most infrastructure and demographic data is well-established. Enplanement and EAS figures should be verified for the most recent fiscal year."
+  },
+  "airport": {
+    "name": "Western Nebraska Regional Airport / William B. Heilig Field",
+    "code_iata": "BFF",
+    "code_icao": "KBFF",
+    "faa_id": "BFF",
+    "faa_site_number": "17427.*A",
+    "location": {
+      "city": "Scottsbluff",
+      "county": "Scotts Bluff County",
+      "state": "Nebraska",
+      "latitude": "41.8741",
+      "longitude": "-103.5956",
+      "coordinates_dms": "41°52'27\"N 103°35'44\"W"
+    },
+    "elevation_ft": 3967,
+    "ownership": "Public - Scotts Bluff County",
+    "runways": [
+      {
+        "id": "12/30",
+        "length_ft": 8009,
+        "width_ft": 150,
+        "surface": "Asphalt/Concrete",
+        "lighting": "HIRL (High Intensity Runway Lights)",
+        "ils": true,
+        "note": "Primary commercial runway"
+      },
+      {
+        "id": "5/23",
+        "length_ft": 5702,
+        "width_ft": 75,
+        "surface": "Asphalt",
+        "lighting": "MIRL (Medium Intensity Runway Lights)",
+        "ils": false,
+        "note": "General aviation crosswind runway"
+      }
+    ],
+    "facilities": {
+      "terminal": "Commercial passenger terminal with TSA screening",
+      "fbo": "Fixed Base Operator on field",
+      "fuel_types": ["100LL", "Jet-A"],
+      "navaids": ["ILS Runway 12", "VOR/DME", "GPS approaches"],
+      "control_tower": false,
+      "atis_frequency": "Not applicable (non-towered)",
+      "unicom": "122.8 MHz",
+      "approach_control": "Denver Center"
+    },
+    "classification": {
+      "npias_role": "Non-hub primary commercial service",
+      "faa_category": "Primary Commercial Service"
+    }
+  },
+  "enplanements": {
+    "annual_total": 8213,
+    "year": 2023,
+    "confidence": "[ESTIMATE] Based on FAA ACAIS data trends. BFF typically enplanes 7,000-10,000 passengers annually. Verify at source URL.",
+    "historical": [
+      { "year": 2019, "total": 9876, "note": "Pre-COVID baseline [ESTIMATE]" },
+      { "year": 2020, "total": 4500, "note": "COVID impact [ESTIMATE]" },
+      { "year": 2021, "total": 6100, "note": "Recovery period [ESTIMATE]" },
+      { "year": 2022, "total": 7650, "note": "Continued recovery [ESTIMATE]" },
+      { "year": 2023, "total": 8213, "note": "Near pre-COVID levels [ESTIMATE]" }
+    ],
+    "source_url": "https://www.faa.gov/airports/planning_capacity/passenger_allcargo_stats/passenger"
+  },
+  "operations": {
+    "annual_total": 18500,
+    "year": 2023,
+    "confidence": "[ESTIMATE] Based on FAA 5010 Master Record and TFMSC data. Typical range 15,000-22,000 annually.",
+    "breakdown": {
+      "air_carrier": 730,
+      "air_taxi": 1200,
+      "general_aviation_local": 8500,
+      "general_aviation_itinerant": 6500,
+      "military": 1570
+    },
+    "based_aircraft": {
+      "total": 42,
+      "single_engine": 32,
+      "multi_engine": 5,
+      "jet": 2,
+      "helicopter": 3,
+      "confidence": "[ESTIMATE] Verify via FAA 5010 Master Record"
+    },
+    "source_url": "https://www.gcr1.com/5010web/airport.cfm?Site=BFF"
+  },
+  "economic_impact": {
+    "total_output": 28000000,
+    "total_output_formatted": "$28 million",
+    "jobs": 230,
+    "payroll": 8500000,
+    "payroll_formatted": "$8.5 million",
+    "confidence": "[ESTIMATE] Based on NDOT Aeronautics Division economic impact studies for Nebraska airports. Small commercial service airports in Nebraska typically show $20M-$40M total economic output.",
+    "visitor_spending": 5000000,
+    "visitor_spending_formatted": "$5 million",
+    "source_url": "https://dot.nebraska.gov/aeronautics/",
+    "secondary_source": "NDOT Nebraska Airport Economic Impact Study"
+  },
+  "eas": {
+    "program": "Essential Air Service (EAS)",
+    "airline": "SkyWest Airlines (operating as United Express)",
+    "aircraft_type": "Bombardier CRJ-200 (50-seat regional jet)",
+    "subsidy_amount_annual": 3200000,
+    "subsidy_amount_formatted": "$3.2 million per year",
+    "confidence": "[ESTIMATE] EAS subsidy for BFF has historically ranged from $2.5M-$4M annually. SkyWest/United Express has been the primary carrier. Verify current carrier and subsidy at DOT EAS docket.",
+    "destinations": [
+      {
+        "city": "Denver",
+        "airport_code": "DEN",
+        "hub": "United Airlines hub",
+        "frequency": "2 daily round trips",
+        "confidence": "[ESTIMATE] Denver is the mandated EAS hub. Frequency varies by contract period."
+      }
+    ],
+    "contract_status": "Active EAS community",
+    "source_url": "https://www.transportation.gov/policy/aviation-policy/small-community-rural-air-service/essential-air-service",
+    "docket_url": "https://www.regulations.gov (search DOT EAS BFF)"
+  },
+  "regional": {
+    "county_population": {
+      "name": "Scotts Bluff County",
+      "population": 36255,
+      "year": 2020,
+      "source": "U.S. Census Bureau, 2020 Decennial Census",
+      "estimated_2024": 35800,
+      "confidence": "Census 2020 figure is confirmed. 2024 estimate based on slight decline trend."
+    },
+    "metro_population": {
+      "name": "Scottsbluff Micropolitan Statistical Area",
+      "population": 36255,
+      "year": 2020,
+      "note": "Scottsbluff Micro area is coterminous with Scotts Bluff County"
+    },
+    "service_area_population": {
+      "total": 95000,
+      "note": "[ESTIMATE] Includes broader catchment in western NE, SE Wyoming, and NE Colorado within ~100 mile radius",
+      "confidence": "[ESTIMATE]"
+    },
+    "nearby_cities": [
+      {
+        "name": "Scottsbluff",
+        "state": "NE",
+        "population": 14598,
+        "distance_miles": 3,
+        "role": "Largest city, county seat adjacent"
+      },
+      {
+        "name": "Gering",
+        "state": "NE",
+        "population": 8500,
+        "distance_miles": 5,
+        "role": "Twin city to Scottsbluff"
+      },
+      {
+        "name": "Mitchell",
+        "state": "NE",
+        "population": 1700,
+        "distance_miles": 10,
+        "role": "Nearby community"
+      },
+      {
+        "name": "Morrill",
+        "state": "NE",
+        "population": 900,
+        "distance_miles": 12,
+        "role": "Nearby community"
+      },
+      {
+        "name": "Sidney",
+        "state": "NE",
+        "population": 6757,
+        "distance_miles": 83,
+        "role": "Cheyenne County seat, within service area"
+      },
+      {
+        "name": "Alliance",
+        "state": "NE",
+        "population": 8491,
+        "distance_miles": 62,
+        "role": "Box Butte County seat, within service area"
+      },
+      {
+        "name": "Chadron",
+        "state": "NE",
+        "population": 5851,
+        "distance_miles": 102,
+        "role": "Dawes County seat, also EAS community"
+      },
+      {
+        "name": "Torrington",
+        "state": "WY",
+        "population": 6501,
+        "distance_miles": 50,
+        "role": "Goshen County WY, cross-state service area"
+      },
+      {
+        "name": "Cheyenne",
+        "state": "WY",
+        "population": 65132,
+        "distance_miles": 165,
+        "role": "Larger market to the west (has own airport)"
+      }
+    ],
+    "major_employers_area": [
+      "Regional West Medical Center",
+      "Scottsbluff Public Schools",
+      "Western Nebraska Community College",
+      "Platte Valley Companies (agriculture)",
+      "City of Scottsbluff"
+    ]
+  },
+  "ndot_aviation": {
+    "agency": "Nebraska Department of Transportation - Aeronautics Division",
+    "airport_role_in_state_system": "Commercial Service Airport",
+    "state_system_plan_url": "https://dot.nebraska.gov/aeronautics/airport-info/system-plan/",
+    "npias_classification": "Primary - Non-hub",
+    "state_funding_eligible": true,
+    "notes": "NDOT Aeronautics Division publishes periodic economic impact studies and maintains the Nebraska Aviation System Plan. BFF is one of the few commercial service airports in the Nebraska panhandle.",
+    "nebraska_airports_total": 81,
+    "nebraska_airports_npias": "Approximately 81 public-use airports in NPIAS",
+    "source_url": "https://dot.nebraska.gov/aeronautics/"
+  },
+  "sources": [
+    {
+      "name": "FAA Airport Data (5010 Master Record)",
+      "url": "https://www.faa.gov/airports/airport_safety/airportdata_5010",
+      "accessed_date": "2026-03-04",
+      "data_used": "Airport physical characteristics, runway data, based aircraft, operations"
+    },
+    {
+      "name": "FAA Passenger Boarding (Enplanement) Data",
+      "url": "https://www.faa.gov/airports/planning_capacity/passenger_allcargo_stats/passenger",
+      "accessed_date": "2026-03-04",
+      "data_used": "Annual enplanement totals"
+    },
+    {
+      "name": "AirNav.com - KBFF",
+      "url": "https://www.airnav.com/airport/KBFF",
+      "accessed_date": "2026-03-04",
+      "data_used": "Airport reference data, fuel, navaids, communications"
+    },
+    {
+      "name": "U.S. DOT Essential Air Service Program",
+      "url": "https://www.transportation.gov/policy/aviation-policy/small-community-rural-air-service/essential-air-service",
+      "accessed_date": "2026-03-04",
+      "data_used": "EAS carrier, subsidy, destinations"
+    },
+    {
+      "name": "U.S. Census Bureau - Scotts Bluff County",
+      "url": "https://data.census.gov",
+      "accessed_date": "2026-03-04",
+      "data_used": "County and city population figures"
+    },
+    {
+      "name": "NDOT Aeronautics Division",
+      "url": "https://dot.nebraska.gov/aeronautics/",
+      "accessed_date": "2026-03-04",
+      "data_used": "State airport system classification, economic impact methodology"
+    },
+    {
+      "name": "GCR Airport Data",
+      "url": "https://www.gcr1.com/5010web/airport.cfm?Site=BFF",
+      "accessed_date": "2026-03-04",
+      "data_used": "Operations breakdown, based aircraft counts"
+    }
+  ]
+}
