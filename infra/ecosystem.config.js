@@ -2,9 +2,9 @@ module.exports = {
   apps: [
     {
       name: "paa-web",
-      script: "node_modules/.bin/next",
+      script: "scripts/dev.mjs",
       args: "start",
-      cwd: "/var/www/panhandle-aviation",
+      cwd: "/var/www/paa",
       instances: 1,
       autorestart: true,
       watch: false,
