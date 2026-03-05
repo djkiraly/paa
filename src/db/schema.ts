@@ -21,7 +21,7 @@ export const pageSections = pgTable("page_sections", {
 
 export const stats = pgTable("stats", {
   id: serial("id").primaryKey(),
-  label: text("label").notNull(),
+  label: text("label").notNull().unique(),
   value: text("value").notNull(),
   numericValue: integer("numeric_value"),
   prefix: text("prefix"),
