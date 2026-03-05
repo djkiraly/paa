@@ -1,15 +1,21 @@
+import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { GcsSettingsForm } from "@/components/admin/GcsSettingsForm";
-import { getGcsSettingsRaw } from "@/lib/admin-queries";
+import { GmailSettingsForm } from "@/components/admin/GmailSettingsForm";
+import { getGcsSettingsRaw, getGmailSettingsRaw } from "@/lib/admin-queries";
 
 export const metadata = { title: "Settings" };
 
 export default async function AdminSettingsPage() {
   let gcsValues: Record<string, string> = {};
+  let gmailValues: Record<string, string> = {};
   try {
-    gcsValues = await getGcsSettingsRaw();
+    [gcsValues, gmailValues] = await Promise.all([
+      getGcsSettingsRaw(),
+      getGmailSettingsRaw(),
+    ]);
   } catch {
-    // DB not ready — show empty form
+    // DB not ready — show empty forms
   }
 
   return (
@@ -33,6 +39,9 @@ export default async function AdminSettingsPage() {
             status="Coming soon"
           />
           <GcsSettingsForm initialValues={gcsValues} />
+          <Suspense>
+            <GmailSettingsForm initialValues={gmailValues} />
+          </Suspense>
         </div>
       </div>
     </>

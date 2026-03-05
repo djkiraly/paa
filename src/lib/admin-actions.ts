@@ -15,8 +15,9 @@ import {
   users,
   siteConfig,
 } from "@/db/schema";
-import { getGcsConfig } from "@/lib/admin-queries";
+import { getGcsConfig, getGmailConfig } from "@/lib/admin-queries";
 import { testGcsConnection } from "@/lib/gcs";
+import { testGmailConnection } from "@/lib/gmail";
 
 function db() {
   const d = getDb();
@@ -65,6 +66,54 @@ export async function testGcsConnectionAction(): Promise<{ ok: boolean; error?: 
     return { ok: false, error: "GCS not configured. Save settings first." };
   }
   return testGcsConnection(config);
+}
+
+// Gmail Settings
+export async function saveGmailSettings(formData: FormData) {
+  await requireAuth();
+  const d = db();
+
+  const entries: { key: string; value: string }[] = [];
+  const clientId = formData.get("gmail_client_id") as string;
+  const clientSecret = formData.get("gmail_client_secret") as string;
+  const notificationTo = formData.get("gmail_notification_to") as string;
+
+  if (clientId) entries.push({ key: "gmail_client_id", value: clientId });
+  if (clientSecret) entries.push({ key: "gmail_client_secret", value: clientSecret });
+  if (notificationTo) entries.push({ key: "gmail_notification_to", value: notificationTo });
+
+  for (const { key, value } of entries) {
+    await d
+      .insert(siteConfig)
+      .values({ key, value })
+      .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+  }
+
+  revalidatePath("/admin/settings");
+}
+
+export async function testGmailConnectionAction(): Promise<{ ok: boolean; error?: string }> {
+  await requireAuth();
+  const config = await getGmailConfig();
+  if (!config) {
+    return { ok: false, error: "Gmail not fully configured. Save credentials and connect your account first." };
+  }
+  return testGmailConnection(config);
+}
+
+export async function disconnectGmail(): Promise<void> {
+  await requireAuth();
+  const d = db();
+  const tokenKeys = [
+    "gmail_access_token",
+    "gmail_refresh_token",
+    "gmail_token_expiry",
+    "gmail_user_email",
+  ];
+  for (const key of tokenKeys) {
+    await d.delete(siteConfig).where(eq(siteConfig.key, key));
+  }
+  revalidatePath("/admin/settings");
 }
 
 // Stats CRUD

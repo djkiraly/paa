@@ -11,6 +11,7 @@ import {
   siteConfig,
 } from "@/db/schema";
 import type { GcsConfig } from "@/lib/gcs";
+import type { GmailConfig } from "@/lib/gmail";
 
 function db() {
   const d = getDb();
@@ -105,6 +106,68 @@ export async function getGcsSettingsRaw(): Promise<Record<string, string>> {
     .select({ key: siteConfig.key, value: siteConfig.value })
     .from(siteConfig)
     .where(inArray(siteConfig.key, [...GCS_KEYS]));
+
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+// Gmail config
+const GMAIL_KEYS = [
+  "gmail_client_id",
+  "gmail_client_secret",
+  "gmail_notification_to",
+  "gmail_access_token",
+  "gmail_refresh_token",
+  "gmail_token_expiry",
+  "gmail_user_email",
+] as const;
+
+export async function getGmailConfig(): Promise<GmailConfig | null> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...GMAIL_KEYS]));
+
+  const map = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+
+  if (
+    !map.gmail_client_id ||
+    !map.gmail_client_secret ||
+    !map.gmail_notification_to ||
+    !map.gmail_access_token ||
+    !map.gmail_refresh_token
+  ) {
+    return null;
+  }
+
+  return {
+    clientId: map.gmail_client_id,
+    clientSecret: map.gmail_client_secret,
+    notificationTo: map.gmail_notification_to,
+    accessToken: map.gmail_access_token,
+    refreshToken: map.gmail_refresh_token,
+    tokenExpiry: map.gmail_token_expiry || "0",
+    userEmail: map.gmail_user_email || "",
+  };
+}
+
+export async function getGmailSettingsRaw(): Promise<Record<string, string>> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...GMAIL_KEYS]));
+
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+/** Returns just client_id + client_secret for OAuth flow */
+export async function getGmailCredentialsRaw(): Promise<Record<string, string>> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, ["gmail_client_id", "gmail_client_secret"]));
 
   return Object.fromEntries(rows.map((r) => [r.key, r.value]));
 }

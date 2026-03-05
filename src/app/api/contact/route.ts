@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod/v4";
 import { getDb } from "@/db";
 import { contactSubmissions } from "@/db/schema";
+import { getGmailConfig } from "@/lib/admin-queries";
+import { sendContactNotification } from "@/lib/gmail";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
@@ -28,6 +30,22 @@ export async function POST(request: Request) {
       message: parsed.message,
       type: parsed.type,
     });
+
+    // Send email notification (fire-and-forget)
+    try {
+      const gmailConfig = await getGmailConfig();
+      if (gmailConfig) {
+        await sendContactNotification(gmailConfig, {
+          name: parsed.name,
+          email: parsed.email,
+          organization: parsed.organization,
+          message: parsed.message,
+          type: parsed.type,
+        });
+      }
+    } catch (emailErr) {
+      console.error("Failed to send contact notification email:", emailErr);
+    }
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (err) {
