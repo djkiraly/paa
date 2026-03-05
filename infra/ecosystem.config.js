@@ -22,8 +22,7 @@ module.exports = {
   apps: [
     {
       name: "paa-web",
-      script: "node_modules/next/dist/bin/next",
-      args: "start",
+      script: ".next/standalone/server.js",
       cwd: "/var/www/paa",
       instances: 1,
       autorestart: true,

@@ -46,8 +46,8 @@ nginx -v
 ## 1. Create application directory
 
 ```bash
-sudo mkdir -p /var/www/panhandle-aviation
-sudo chown $USER:$USER /var/www/panhandle-aviation
+sudo mkdir -p /var/www/paa
+sudo chown $USER:$USER /var/www/paa
 ```
 
 ---
@@ -57,7 +57,7 @@ sudo chown $USER:$USER /var/www/panhandle-aviation
 Clone or copy the project to the server:
 
 ```bash
-cd /var/www/panhandle-aviation
+cd /var/www/paa
 git clone <your-repo-url> .
 ```
 
@@ -65,7 +65,7 @@ Or use `rsync` from your local machine:
 
 ```bash
 rsync -avz --exclude node_modules --exclude .next --exclude .env \
-  ./ user@your-server:/var/www/panhandle-aviation/
+  ./ user@your-server:/var/www/paa/
 ```
 
 ---
@@ -73,7 +73,7 @@ rsync -avz --exclude node_modules --exclude .next --exclude .env \
 ## 3. Install dependencies
 
 ```bash
-cd /var/www/panhandle-aviation
+cd /var/www/paa
 pnpm install --frozen-lockfile
 ```
 
@@ -129,6 +129,13 @@ pnpm build
 ```
 
 This produces a standalone build in `.next/standalone/` with a self-contained `server.js`.
+
+Copy static assets into the standalone output (required after every build):
+
+```bash
+cp -r .next/static .next/standalone/.next/static
+cp -r public .next/standalone/public
+```
 
 ---
 
@@ -228,27 +235,36 @@ You should see a `200 OK` response with proper headers.
 
 ## Updating the application
 
-```bash
-cd /var/www/panhandle-aviation
+After each code change, run these steps on the server:
 
-# Pull latest code
+```bash
+cd /var/www/paa
+
+# 1. Pull latest code
 git pull origin main
 
-# Install any new dependencies
+# 2. Install any new/updated dependencies
 pnpm install --frozen-lockfile
 
-# Rebuild
+# 3. Push any database schema changes
+pnpm db:push
+
+# 4. Build the application
 pnpm build
 
-# Restart the process
+# 5. Copy static assets into the standalone output
+cp -r .next/static .next/standalone/.next/static
+cp -r public .next/standalone/public
+
+# 6. Restart the application
 pm2 restart paa-web
+
+# 7. Verify it's running
+pm2 status
+pm2 logs paa-web --lines 20
 ```
 
-For database schema changes:
-
-```bash
-pnpm db:push
-```
+> **Important:** Steps 5 is required because `output: "standalone"` produces a minimal `server.js` that does not include static assets or the `public/` folder. Skipping this will cause the app to crash or serve broken pages.
 
 ---
 
@@ -286,7 +302,7 @@ This opens ports 22 (SSH), 80 (HTTP), and 443 (HTTPS). Port 3000 stays internal 
 If you prefer Docker over bare-metal PM2:
 
 ```bash
-cd /var/www/panhandle-aviation
+cd /var/www/paa
 
 # Build and run
 docker compose up -d --build
