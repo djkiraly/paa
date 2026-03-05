@@ -5,14 +5,14 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   const isAdminRoute = pathname.startsWith("/admin");
-  const isLoginPage = pathname === "/admin/login";
+  const isPublicAdminPage = pathname === "/admin/login" || pathname === "/admin/activate";
   const isAuthenticated = !!req.auth;
 
-  if (isAdminRoute && !isLoginPage && !isAuthenticated) {
+  if (isAdminRoute && !isPublicAdminPage && !isAuthenticated) {
     return NextResponse.redirect(new URL("/admin/login", req.url));
   }
 
-  if (isLoginPage && isAuthenticated) {
+  if (pathname === "/admin/login" && isAuthenticated) {
     return NextResponse.redirect(new URL("/admin", req.url));
   }
 

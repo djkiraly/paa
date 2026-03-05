@@ -28,6 +28,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user) return null;
 
+        // Block users who haven't activated yet
+        if (!user.passwordHash || !user.activatedAt) return null;
+
         const valid = await compare(password, user.passwordHash);
         if (!valid) return null;
 

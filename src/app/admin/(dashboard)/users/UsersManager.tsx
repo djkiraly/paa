@@ -10,6 +10,7 @@ import {
   updateUser,
   resetUserPassword,
   deleteUser,
+  resendActivationEmail,
 } from "@/lib/admin-actions";
 
 type User = {
@@ -17,13 +18,13 @@ type User = {
   name: string | null;
   email: string;
   role: string;
+  activatedAt: Date | null;
   createdAt: Date;
 };
 
 const createFields = [
   { name: "name", label: "Name" },
   { name: "email", label: "Email", required: true },
-  { name: "password", label: "Password", required: true },
   {
     name: "role",
     label: "Role",
@@ -56,6 +57,12 @@ const columns = [
   { key: "email" as const, label: "Email" },
   { key: "role" as const, label: "Role" },
   {
+    key: "activatedAt" as const,
+    label: "Status",
+    render: (value: User[keyof User]) =>
+      value ? "Active" : "Pending activation",
+  },
+  {
     key: "createdAt" as const,
     label: "Created",
     render: (value: User[keyof User]) =>
@@ -75,6 +82,7 @@ export function UsersManager({
   const [editing, setEditing] = useState<User | null>(null);
   const [resettingPassword, setResettingPassword] = useState<User | null>(null);
   const [deleting, setDeleting] = useState<User | null>(null);
+  const [resending, setResending] = useState<string | null>(null);
 
   return (
     <>
@@ -138,12 +146,32 @@ export function UsersManager({
                       >
                         Edit
                       </button>
-                      <button
-                        onClick={() => setResettingPassword(user)}
-                        className="rounded px-2 py-1 text-xs text-amber-400 hover:bg-amber-500/10"
-                      >
-                        Reset Password
-                      </button>
+                      {user.activatedAt ? (
+                        <button
+                          onClick={() => setResettingPassword(user)}
+                          className="rounded px-2 py-1 text-xs text-amber-400 hover:bg-amber-500/10"
+                        >
+                          Reset Password
+                        </button>
+                      ) : (
+                        <button
+                          disabled={resending === user.id}
+                          onClick={async () => {
+                            setResending(user.id);
+                            try {
+                              await resendActivationEmail(user.id);
+                              router.refresh();
+                            } catch (err) {
+                              alert(err instanceof Error ? err.message : "Failed to resend");
+                            } finally {
+                              setResending(null);
+                            }
+                          }}
+                          className="rounded px-2 py-1 text-xs text-emerald-400 hover:bg-emerald-500/10 disabled:opacity-50"
+                        >
+                          {resending === user.id ? "Sending..." : "Resend Invite"}
+                        </button>
+                      )}
                       {user.id !== currentUserId && (
                         <button
                           onClick={() => setDeleting(user)}

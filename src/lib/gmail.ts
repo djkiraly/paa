@@ -163,6 +163,44 @@ export async function sendContactNotification(
   await sendEmail(config, config.notificationTo, subject, body);
 }
 
+export async function sendActivationEmail(
+  config: GmailConfig,
+  user: { name: string | null; email: string; activationToken: string }
+): Promise<void> {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const activationUrl = `${siteUrl}/admin/activate?token=${user.activationToken}`;
+  const displayName = user.name || user.email;
+  const subject = `You've been invited to PAA Admin`;
+  const body = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2d6eb5; margin-bottom: 16px;">Welcome to PAA Admin</h2>
+      <p style="color: #333; font-size: 16px;">
+        Hello ${escapeHtml(displayName)},
+      </p>
+      <p style="color: #333; font-size: 16px;">
+        You've been invited to the Panhandle Aviation Alliance admin portal.
+        Click the button below to activate your account and set your password.
+      </p>
+      <div style="margin: 32px 0; text-align: center;">
+        <a href="${activationUrl}" style="display: inline-block; background: #2d6eb5; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+          Activate Your Account
+        </a>
+      </div>
+      <p style="color: #666; font-size: 14px;">
+        Or copy and paste this link into your browser:
+      </p>
+      <p style="color: #2d6eb5; font-size: 14px; word-break: break-all;">
+        ${activationUrl}
+      </p>
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 24px 0;" />
+      <p style="color: #999; font-size: 12px;">
+        If you did not expect this invitation, you can safely ignore this email.
+      </p>
+    </div>
+  `;
+  await sendEmail(config, user.email, subject, body);
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")

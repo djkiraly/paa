@@ -179,6 +179,7 @@ export async function getAllUsers() {
       name: users.name,
       email: users.email,
       role: users.role,
+      activatedAt: users.activatedAt,
       createdAt: users.createdAt,
     })
     .from(users)

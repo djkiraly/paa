@@ -17,7 +17,9 @@ import {
 } from "@/db/schema";
 import { getGcsConfig, getGmailConfig } from "@/lib/admin-queries";
 import { testGcsConnection } from "@/lib/gcs";
-import { testGmailConnection } from "@/lib/gmail";
+import { testGmailConnection, sendActivationEmail } from "@/lib/gmail";
+import { randomUUID } from "crypto";
+import { and, isNull } from "drizzle-orm";
 
 function db() {
   const d = getDb();
@@ -349,17 +351,25 @@ export async function deleteContact(id: number) {
 // Users CRUD
 export async function createUser(formData: FormData) {
   await requireAuth();
-  const password = formData.get("password") as string;
-  if (!password || password.length < 8) {
-    throw new Error("Password must be at least 8 characters");
-  }
-  const passwordHash = await hash(password, 12);
+  const activationToken = randomUUID();
+  const email = formData.get("email") as string;
+  const name = (formData.get("name") as string) || null;
   await db().insert(users).values({
-    name: (formData.get("name") as string) || null,
-    email: formData.get("email") as string,
-    passwordHash,
+    name,
+    email,
     role: (formData.get("role") as string) || "admin",
+    activationToken,
   });
+
+  // Send activation email (fire-and-forget)
+  getGmailConfig()
+    .then((config) => {
+      if (config) {
+        return sendActivationEmail(config, { name, email, activationToken });
+      }
+    })
+    .catch((err) => console.error("Failed to send activation email:", err));
+
   revalidatePath("/admin/users");
 }
 
@@ -399,5 +409,71 @@ export async function deleteUser(id: string) {
     throw new Error("Cannot delete your own account");
   }
   await db().delete(users).where(eq(users.id, id));
+  revalidatePath("/admin/users");
+}
+
+// Account Activation (NOT auth-gated — user isn't logged in yet)
+export async function activateAccount(
+  token: string,
+  password: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!token) return { ok: false, error: "Invalid activation link" };
+  if (!password || password.length < 8) {
+    return { ok: false, error: "Password must be at least 8 characters" };
+  }
+
+  const d = db();
+  const [user] = await d
+    .select()
+    .from(users)
+    .where(and(eq(users.activationToken, token), isNull(users.activatedAt)))
+    .limit(1);
+
+  if (!user) return { ok: false, error: "Invalid or expired activation link" };
+
+  const passwordHash = await hash(password, 12);
+  await d
+    .update(users)
+    .set({
+      passwordHash,
+      emailVerified: new Date(),
+      activatedAt: new Date(),
+      activationToken: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+
+  return { ok: true };
+}
+
+export async function resendActivationEmail(userId: string) {
+  await requireAuth();
+  const d = db();
+  const [user] = await d
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) throw new Error("User not found");
+  if (user.activatedAt) throw new Error("User is already activated");
+
+  const activationToken = randomUUID();
+  await d
+    .update(users)
+    .set({ activationToken, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+
+  const config = await getGmailConfig();
+  if (config) {
+    await sendActivationEmail(config, {
+      name: user.name,
+      email: user.email,
+      activationToken,
+    });
+  } else {
+    throw new Error("Gmail not configured — cannot send activation email");
+  }
+
   revalidatePath("/admin/users");
 }
