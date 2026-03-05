@@ -9,6 +9,8 @@ export const metadata: Metadata = {
     "Statistics, infrastructure, and history of Western Nebraska Regional Airport (KBFF) in Scottsbluff, Nebraska.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AirportPage() {
   const statsData = await getStats();
 

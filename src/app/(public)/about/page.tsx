@@ -8,6 +8,8 @@ export const metadata: Metadata = {
     "Learn about the Panhandle Aviation Alliance — our mission, vision, and the people working to strengthen aviation in Western Nebraska.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function AboutPage() {
   const leadershipData = await getLeadership();
 

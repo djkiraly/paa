@@ -5,6 +5,8 @@ import { InitiativeCard } from "@/components/ui/InitiativeCard";
 import { ContactForm } from "@/components/ui/ContactForm";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [statsData, initiativesData] = await Promise.all([
     getStats(),

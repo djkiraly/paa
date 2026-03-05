@@ -19,6 +19,8 @@ const detailedDescriptions: Record<string, string> = {
     "Public support is the foundation of effective advocacy. Through educational events, media outreach, community forums, and partnerships with schools and civic organizations, we build understanding of why aviation matters to every resident of the Panhandle—whether or not they ever board a plane.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function InitiativesPage() {
   const initiativesData = await getInitiatives();
 
