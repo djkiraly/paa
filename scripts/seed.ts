@@ -64,6 +64,7 @@ async function seed() {
     email: "admin@panhandleaviationalliance.org",
     passwordHash,
     role: "admin",
+    activatedAt: new Date(),
   }).onConflictDoNothing();
   console.log("  Admin user seeded");
   console.log("  ⚠️  Default credentials: admin@panhandleaviationalliance.org / changeme123!");
