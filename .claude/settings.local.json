@@ -14,7 +14,8 @@
       "Bash(pnpm db:seed:*)",
       "Bash(npx tsx:*)",
       "Bash(ls:*)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(curl:*)"
     ]
   }
 }
