@@ -15,7 +15,9 @@
       "Bash(npx tsx:*)",
       "Bash(ls:*)",
       "Bash(xargs cat:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(ls -la D:/Projects/PAA/src/app/admin/ D:/Projects/PAA/src/app/api/ D:/Projects/PAA/src/app/'\\(public\\)'/ 2>/dev/null)",
+      "Bash(git -C D:/Projects/PAA diff --stat)"
     ]
   }
 }

@@ -36,7 +36,7 @@ export const stats = pgTable("stats", {
 
 export const initiatives = pgTable("initiatives", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(),
+  title: text("title").notNull().unique(),
   description: text("description").notNull(),
   icon: text("icon"),
   status: text("status").notNull().default("active"),

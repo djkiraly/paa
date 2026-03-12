@@ -31,7 +31,14 @@ export async function getStats() {
 export async function getInitiatives() {
   try {
     const rows = await getDb()!.select().from(initiatives).orderBy(asc(initiatives.orderIndex));
-    return rows.length > 0 ? rows : FALLBACK_INITIATIVES;
+    // Deduplicate by title in case DB has duplicate rows
+    const seen = new Set<string>();
+    const unique = rows.filter((r) => {
+      if (seen.has(r.title)) return false;
+      seen.add(r.title);
+      return true;
+    });
+    return unique.length > 0 ? unique : FALLBACK_INITIATIVES;
   } catch {
     return FALLBACK_INITIATIVES;
   }
