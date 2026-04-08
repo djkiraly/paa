@@ -1,5 +1,6 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { getStats, getInitiatives } from "@/lib/queries";
+import { getStats, getInitiatives, getSiteConfig } from "@/lib/queries";
 import { StatCard } from "@/components/ui/StatCard";
 import { InitiativeCard } from "@/components/ui/InitiativeCard";
 import { ContactForm } from "@/components/ui/ContactForm";
@@ -7,11 +8,30 @@ import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export const dynamic = "force-dynamic";
 
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  return {
+    ...(config.seo_title_home ? { title: config.seo_title_home } : {}),
+    ...(config.seo_description_home ? { description: config.seo_description_home } : {}),
+    ...(config.seo_og_image_home || config.seo_og_image
+      ? {
+          openGraph: {
+            images: [{ url: config.seo_og_image_home || config.seo_og_image }],
+          },
+        }
+      : {}),
+  };
+}
+
 export default async function HomePage() {
-  const [statsData, initiativesData] = await Promise.all([
+  const [statsData, initiativesData, config] = await Promise.all([
     getStats(),
     getInitiatives(),
+    getSiteConfig(),
   ]);
+
+  const siteName = config.site_name || "Panhandle Aviation Alliance";
+  const tagline = config.tagline || "Western Nebraska Aviation Advocacy";
 
   return (
     <>
@@ -37,7 +57,7 @@ export default async function HomePage() {
         <div className="relative z-10 mx-auto max-w-5xl px-6 text-center">
           <ScrollReveal>
             <p className="mb-4 font-heading text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-              Western Nebraska Aviation Advocacy
+              {tagline}
             </p>
           </ScrollReveal>
           <ScrollReveal delay={100}>
@@ -49,7 +69,7 @@ export default async function HomePage() {
           </ScrollReveal>
           <ScrollReveal delay={200}>
             <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-paa-gray md:text-xl">
-              The Panhandle Aviation Alliance champions air service, airport
+              The {siteName} champions air service, airport
               infrastructure, and aviation-driven economic growth for Western
               Nebraska.
             </p>

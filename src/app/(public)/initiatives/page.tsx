@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
-import { getInitiatives } from "@/lib/queries";
+import { getInitiatives, getSiteConfig } from "@/lib/queries";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-export const metadata: Metadata = {
-  title: "Initiatives",
-  description:
-    "Explore the Panhandle Aviation Alliance's initiatives for air service retention, infrastructure modernization, economic development, and community engagement.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  const defaultDesc =
+    "Explore the Panhandle Aviation Alliance's initiatives for air service retention, infrastructure modernization, economic development, and community engagement.";
+  return {
+    title: config.seo_title_initiatives || "Initiatives",
+    description: config.seo_description_initiatives || defaultDesc,
+    ...(config.seo_og_image_initiatives || config.seo_og_image
+      ? {
+          openGraph: {
+            images: [{ url: config.seo_og_image_initiatives || config.seo_og_image }],
+          },
+        }
+      : {}),
+  };
+}
 
 const detailedDescriptions: Record<string, string> = {
   "Air Service Retention":

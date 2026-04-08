@@ -1,19 +1,39 @@
 import { Suspense } from "react";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { GeneralSettingsForm } from "@/components/admin/GeneralSettingsForm";
+import { AppearanceSettingsForm } from "@/components/admin/AppearanceSettingsForm";
+import { SeoSettingsForm } from "@/components/admin/SeoSettingsForm";
 import { GcsSettingsForm } from "@/components/admin/GcsSettingsForm";
 import { GmailSettingsForm } from "@/components/admin/GmailSettingsForm";
-import { getGcsSettingsRaw, getGmailSettingsRaw } from "@/lib/admin-queries";
+import {
+  getGeneralSettingsRaw,
+  getAppearanceSettingsRaw,
+  getSeoSettingsRaw,
+  getGcsSettingsRaw,
+  getGcsConfig,
+  getGmailSettingsRaw,
+} from "@/lib/admin-queries";
 
 export const metadata = { title: "Settings" };
 
 export default async function AdminSettingsPage() {
+  let generalValues: Record<string, string> = {};
+  let appearanceValues: Record<string, string> = {};
+  let seoValues: Record<string, string> = {};
   let gcsValues: Record<string, string> = {};
   let gmailValues: Record<string, string> = {};
+  let gcsConfigured = false;
   try {
-    [gcsValues, gmailValues] = await Promise.all([
-      getGcsSettingsRaw(),
-      getGmailSettingsRaw(),
-    ]);
+    [generalValues, appearanceValues, seoValues, gcsValues, gmailValues] =
+      await Promise.all([
+        getGeneralSettingsRaw(),
+        getAppearanceSettingsRaw(),
+        getSeoSettingsRaw(),
+        getGcsSettingsRaw(),
+        getGmailSettingsRaw(),
+      ]);
+    const gcsConfig = await getGcsConfig();
+    gcsConfigured = !!gcsConfig;
   } catch {
     // DB not ready — show empty forms
   }
@@ -23,53 +43,21 @@ export default async function AdminSettingsPage() {
       <AdminHeader title="Settings" />
       <div className="p-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <SettingsCard
-            title="General"
-            description="Site name, tagline, contact email, and location"
-            status="Coming soon"
-          />
-          <SettingsCard
-            title="SEO & Metadata"
-            description="Open Graph, meta descriptions, and social sharing"
-            status="Coming soon"
-          />
-          <SettingsCard
-            title="Appearance"
-            description="Colors, fonts, and branding options"
-            status="Coming soon"
-          />
+          <GeneralSettingsForm initialValues={generalValues} />
           <GcsSettingsForm initialValues={gcsValues} />
+          <AppearanceSettingsForm
+            initialValues={appearanceValues}
+            gcsConfigured={gcsConfigured}
+          />
+          <SeoSettingsForm
+            initialValues={seoValues}
+            gcsConfigured={gcsConfigured}
+          />
           <Suspense>
             <GmailSettingsForm initialValues={gmailValues} />
           </Suspense>
         </div>
       </div>
     </>
-  );
-}
-
-function SettingsCard({
-  title,
-  description,
-  status,
-}: {
-  title: string;
-  description: string;
-  status: string;
-}) {
-  return (
-    <div className="rounded-xl border border-white/10 bg-[var(--paa-navy)] p-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-base font-semibold text-[var(--paa-white)] font-[family-name:var(--font-barlow)]">
-            {title}
-          </h3>
-          <p className="mt-1 text-sm text-[var(--paa-gray)]">{description}</p>
-        </div>
-        <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-[var(--paa-gray)]">
-          {status}
-        </span>
-      </div>
-    </div>
   );
 }

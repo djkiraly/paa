@@ -65,7 +65,7 @@ function buildRfc2822(from: string, to: string, subject: string, bodyHtml: strin
   const lines = [
     `From: ${from}`,
     `To: ${to}`,
-    `Subject: ${subject}`,
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString("base64")}?=`,
     `MIME-Version: 1.0`,
     `Content-Type: multipart/alternative; boundary="${boundary}"`,
     "",

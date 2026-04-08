@@ -36,7 +36,7 @@ export const stats = pgTable("stats", {
 
 export const initiatives = pgTable("initiatives", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull().unique(),
+  title: text("title").notNull(),
   description: text("description").notNull(),
   icon: text("icon"),
   status: text("status").notNull().default("active"),
@@ -86,6 +86,17 @@ export const sessions = pgTable("sessions", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   expires: timestamp("expires").notNull(),
+});
+
+export const tenants = pgTable("tenants", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  hangarLocation: text("hangar_location"),
+  address: text("address"),
+  phone: text("phone"),
+  email: text("email"),
+  orderIndex: integer("order_index").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const contactSubmissions = pgTable("contact_submissions", {

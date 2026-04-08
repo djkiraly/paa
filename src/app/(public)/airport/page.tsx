@@ -1,13 +1,24 @@
 import type { Metadata } from "next";
-import { getStats } from "@/lib/queries";
+import { getStats, getSiteConfig } from "@/lib/queries";
 import { StatCard } from "@/components/ui/StatCard";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-export const metadata: Metadata = {
-  title: "KBFF Airport",
-  description:
-    "Statistics, infrastructure, and history of Western Nebraska Regional Airport (KBFF) in Scottsbluff, Nebraska.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  const defaultDesc =
+    "Statistics, infrastructure, and history of Western Nebraska Regional Airport (KBFF) in Scottsbluff, Nebraska.";
+  return {
+    title: config.seo_title_airport || "KBFF Airport",
+    description: config.seo_description_airport || defaultDesc,
+    ...(config.seo_og_image_airport || config.seo_og_image
+      ? {
+          openGraph: {
+            images: [{ url: config.seo_og_image_airport || config.seo_og_image }],
+          },
+        }
+      : {}),
+  };
+}
 
 export const dynamic = "force-dynamic";
 

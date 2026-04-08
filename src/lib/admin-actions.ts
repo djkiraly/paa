@@ -12,6 +12,7 @@ import {
   partners,
   pageSections,
   contactSubmissions,
+  tenants,
   users,
   siteConfig,
 } from "@/db/schema";
@@ -38,6 +39,93 @@ async function requireAuth() {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
   return session;
+}
+
+// SEO Settings
+export async function saveSeoSettings(formData: FormData) {
+  await requireAuth();
+  const d = db();
+
+  const keys = [
+    "seo_description", "seo_keywords", "seo_og_image",
+    "seo_twitter_handle", "seo_google_verification",
+    "seo_organization_type", "seo_organization_description",
+    "seo_title_home", "seo_description_home", "seo_og_image_home",
+    "seo_title_about", "seo_description_about", "seo_og_image_about",
+    "seo_title_airport", "seo_description_airport", "seo_og_image_airport",
+    "seo_title_initiatives", "seo_description_initiatives", "seo_og_image_initiatives",
+  ] as const;
+
+  for (const key of keys) {
+    const value = (formData.get(key) as string)?.trim() || "";
+    if (value) {
+      await d
+        .insert(siteConfig)
+        .values({ key, value })
+        .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+    } else {
+      await d.delete(siteConfig).where(eq(siteConfig.key, key));
+    }
+  }
+
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
+  revalidatePath("/about");
+  revalidatePath("/airport");
+  revalidatePath("/initiatives");
+}
+
+// Appearance Settings
+export async function saveAppearanceSettings(formData: FormData) {
+  await requireAuth();
+  const d = db();
+
+  const keys = [
+    "theme_midnight", "theme_navy", "theme_slate",
+    "theme_accent", "theme_accent_light", "theme_accent_dark",
+    "theme_sky", "theme_sky_light", "theme_white", "theme_gray",
+    "logo_url", "favicon_url",
+  ] as const;
+
+  for (const key of keys) {
+    const value = (formData.get(key) as string)?.trim() || "";
+    if (value) {
+      await d
+        .insert(siteConfig)
+        .values({ key, value })
+        .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+    } else {
+      // Empty = use default, remove override
+      await d.delete(siteConfig).where(eq(siteConfig.key, key));
+    }
+  }
+
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
+  revalidatePath("/about");
+  revalidatePath("/airport");
+  revalidatePath("/initiatives");
+}
+
+// General Settings
+export async function saveGeneralSettings(formData: FormData) {
+  await requireAuth();
+  const d = db();
+
+  const keys = ["site_name", "tagline", "contact_email", "location"] as const;
+  for (const key of keys) {
+    const value = (formData.get(key) as string)?.trim() || "";
+    await d
+      .insert(siteConfig)
+      .values({ key, value })
+      .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+  }
+
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
+  revalidatePath("/about");
+  revalidatePath("/airport");
+  revalidatePath("/initiatives");
 }
 
 // GCS Settings
@@ -368,6 +456,75 @@ export async function deleteContact(id: number) {
   await requireAuth();
   await db().delete(contactSubmissions).where(eq(contactSubmissions.id, id));
   revalidatePath("/admin/contacts");
+}
+
+// Tenants CRUD
+export async function createTenant(formData: FormData) {
+  await requireAuth();
+  await db().insert(tenants).values({
+    name: formData.get("name") as string,
+    hangarLocation: (formData.get("hangarLocation") as string) || null,
+    address: (formData.get("address") as string) || null,
+    phone: (formData.get("phone") as string) || null,
+    email: (formData.get("email") as string) || null,
+    orderIndex: Number(formData.get("orderIndex") || 0),
+  });
+  revalidatePath("/admin/tenants");
+}
+
+export async function updateTenant(formData: FormData) {
+  await requireAuth();
+  const id = Number(formData.get("id"));
+  await db()
+    .update(tenants)
+    .set({
+      name: formData.get("name") as string,
+      hangarLocation: (formData.get("hangarLocation") as string) || null,
+      address: (formData.get("address") as string) || null,
+      phone: (formData.get("phone") as string) || null,
+      email: (formData.get("email") as string) || null,
+      orderIndex: Number(formData.get("orderIndex") || 0),
+      updatedAt: new Date(),
+    })
+    .where(eq(tenants.id, id));
+  revalidatePath("/admin/tenants");
+}
+
+export async function deleteTenant(id: number) {
+  await requireAuth();
+  await db().delete(tenants).where(eq(tenants.id, id));
+  revalidatePath("/admin/tenants");
+}
+
+export async function bulkImportTenants(
+  rows: { name: string; hangarLocation?: string; address?: string; phone?: string; email?: string }[]
+): Promise<{ count: number }> {
+  await requireAuth();
+  const d = db();
+
+  // Get current max orderIndex
+  const existing = await d.select({ orderIndex: tenants.orderIndex }).from(tenants);
+  let maxOrder = existing.length > 0 ? Math.max(...existing.map((r) => r.orderIndex)) : -1;
+
+  const validRows = rows.filter((r) => r.name?.trim());
+  if (validRows.length === 0) {
+    throw new Error("No valid rows to import (each row must have a name)");
+  }
+
+  for (const row of validRows) {
+    maxOrder++;
+    await d.insert(tenants).values({
+      name: row.name.trim(),
+      hangarLocation: row.hangarLocation?.trim() || null,
+      address: row.address?.trim() || null,
+      phone: row.phone?.trim() || null,
+      email: row.email?.trim() || null,
+      orderIndex: maxOrder,
+    });
+  }
+
+  revalidatePath("/admin/tenants");
+  return { count: validRows.length };
 }
 
 // Users CRUD

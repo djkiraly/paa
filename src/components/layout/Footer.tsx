@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 const footerLinks = [
@@ -8,7 +7,15 @@ const footerLinks = [
   { href: "/about", label: "About" },
 ];
 
-export function Footer() {
+type FooterProps = {
+  siteName: string;
+  tagline: string;
+  contactEmail: string;
+  location: string;
+  logoUrl?: string;
+};
+
+export function Footer({ siteName, tagline, contactEmail, location, logoUrl }: FooterProps) {
   return (
     <footer className="border-t border-white/10 bg-midnight">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12">
@@ -16,22 +23,22 @@ export function Footer() {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3">
-              <Image
-                src="/logo.png"
-                alt="Panhandle Aviation Alliance"
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={logoUrl || "/logo.png"}
+                alt={siteName}
                 width={44}
                 height={44}
                 className="rounded"
               />
               <div>
                 <div className="font-heading text-sm font-bold uppercase tracking-wider text-paa-white">
-                  Panhandle Aviation Alliance
+                  {siteName}
                 </div>
               </div>
             </div>
             <p className="mt-4 text-sm leading-relaxed text-paa-gray">
-              Advocating for aviation infrastructure, air service, and economic
-              development in Western Nebraska.
+              {tagline}
             </p>
           </div>
 
@@ -59,12 +66,12 @@ export function Footer() {
               Contact
             </h3>
             <div className="flex flex-col gap-2 text-sm text-paa-gray">
-              <p>Scottsbluff, Nebraska</p>
+              <p>{location}</p>
               <a
-                href="mailto:info@panhandleaviationalliance.org"
+                href={`mailto:${contactEmail}`}
                 className="break-all transition-colors hover:text-accent"
               >
-                info@panhandleaviationalliance.org
+                {contactEmail}
               </a>
             </div>
           </div>
@@ -73,7 +80,7 @@ export function Footer() {
         <div className="mt-12 border-t border-white/10 pt-8">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-xs text-paa-gray">
-              &copy; {new Date().getFullYear()} Panhandle Aviation Alliance. All
+              &copy; {new Date().getFullYear()} {siteName}. All
               rights reserved.
             </p>
             <p className="text-xs text-paa-gray/60">

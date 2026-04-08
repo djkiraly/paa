@@ -7,6 +7,7 @@ import {
   partners,
   pageSections,
   contactSubmissions,
+  tenants,
   users,
   siteConfig,
 } from "@/db/schema";
@@ -70,6 +71,10 @@ export async function getAllContacts() {
   return db().select().from(contactSubmissions).orderBy(contactSubmissions.createdAt);
 }
 
+export async function getAllTenants() {
+  return db().select().from(tenants).orderBy(tenants.orderIndex);
+}
+
 const GCS_KEYS = [
   "gcs_project_id",
   "gcs_bucket_name",
@@ -98,6 +103,78 @@ export async function getGcsConfig(): Promise<GcsConfig | null> {
       map.gcs_cdn_base_url ||
       `https://storage.googleapis.com/${map.gcs_bucket_name}`,
   };
+}
+
+const GENERAL_KEYS = [
+  "site_name",
+  "tagline",
+  "contact_email",
+  "location",
+] as const;
+
+export async function getGeneralSettingsRaw(): Promise<Record<string, string>> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...GENERAL_KEYS]));
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+const APPEARANCE_KEYS = [
+  "theme_midnight",
+  "theme_navy",
+  "theme_slate",
+  "theme_accent",
+  "theme_accent_light",
+  "theme_accent_dark",
+  "theme_sky",
+  "theme_sky_light",
+  "theme_white",
+  "theme_gray",
+  "logo_url",
+  "favicon_url",
+] as const;
+
+export async function getAppearanceSettingsRaw(): Promise<Record<string, string>> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...APPEARANCE_KEYS]));
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+const SEO_KEYS = [
+  "seo_description",
+  "seo_keywords",
+  "seo_og_image",
+  "seo_twitter_handle",
+  "seo_google_verification",
+  "seo_organization_type",
+  "seo_organization_description",
+  // Per-page overrides
+  "seo_title_home",
+  "seo_description_home",
+  "seo_og_image_home",
+  "seo_title_about",
+  "seo_description_about",
+  "seo_og_image_about",
+  "seo_title_airport",
+  "seo_description_airport",
+  "seo_og_image_airport",
+  "seo_title_initiatives",
+  "seo_description_initiatives",
+  "seo_og_image_initiatives",
+] as const;
+
+export async function getSeoSettingsRaw(): Promise<Record<string, string>> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...SEO_KEYS]));
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
 }
 
 export async function getGcsSettingsRaw(): Promise<Record<string, string>> {

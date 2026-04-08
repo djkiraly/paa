@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 
@@ -11,7 +10,7 @@ const navLinks = [
   { href: "/about", label: "About" },
 ];
 
-export function Navbar() {
+export function Navbar({ siteName, logoUrl }: { siteName: string; logoUrl?: string }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const [menuHeight, setMenuHeight] = useState(0);
@@ -22,24 +21,32 @@ export function Navbar() {
     }
   }, [mobileOpen]);
 
+  // Split site name for two-line display (e.g. "Panhandle Aviation" / "Alliance")
+  const words = siteName.split(" ");
+  const topLine = words.length > 1 ? words.slice(0, -1).join(" ") : siteName;
+  const bottomLine = words.length > 1 ? words[words.length - 1] : "";
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-midnight/80 backdrop-blur-md" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/logo.png"
-            alt="Panhandle Aviation Alliance"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={logoUrl || "/logo.png"}
+            alt={siteName}
             width={44}
             height={44}
             className="rounded"
           />
           <div className="hidden sm:block">
             <div className="font-heading text-sm font-bold uppercase tracking-wider text-paa-white">
-              Panhandle Aviation
+              {topLine}
             </div>
-            <div className="font-heading text-xs uppercase tracking-wider text-paa-gray">
-              Alliance
-            </div>
+            {bottomLine && (
+              <div className="font-heading text-xs uppercase tracking-wider text-paa-gray">
+                {bottomLine}
+              </div>
+            )}
           </div>
         </Link>
 

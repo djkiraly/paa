@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
-import { getLeadership } from "@/lib/queries";
+import { getLeadership, getSiteConfig } from "@/lib/queries";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
-export const metadata: Metadata = {
-  title: "About",
-  description:
-    "Learn about the Panhandle Aviation Alliance — our mission, vision, and the people working to strengthen aviation in Western Nebraska.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getSiteConfig();
+  const defaultDesc =
+    "Learn about the Panhandle Aviation Alliance — our mission, vision, and the people working to strengthen aviation in Western Nebraska.";
+  return {
+    title: config.seo_title_about || "About",
+    description: config.seo_description_about || defaultDesc,
+    ...(config.seo_og_image_about || config.seo_og_image
+      ? {
+          openGraph: {
+            images: [{ url: config.seo_og_image_about || config.seo_og_image }],
+          },
+        }
+      : {}),
+  };
+}
 
 export const dynamic = "force-dynamic";
 
