@@ -42,10 +42,27 @@ export async function GET(request: Request) {
     const { tokens } = await oauth2.getToken(code);
     oauth2.setCredentials(tokens);
 
-    // Fetch the user's email
-    const gmail = google.gmail({ version: "v1", auth: oauth2 });
-    const profile = await gmail.users.getProfile({ userId: "me" });
-    const userEmail = profile.data.emailAddress || "";
+    // Validate connection by fetching the user's email (confirms gmail.send scope works)
+    let userEmail = "";
+    try {
+      const gmail = google.gmail({ version: "v1", auth: oauth2 });
+      const profile = await gmail.users.getProfile({ userId: "me" });
+      userEmail = profile.data.emailAddress || "";
+    } catch (scopeErr) {
+      const errMsg = scopeErr instanceof Error ? scopeErr.message : "";
+      if (errMsg.toLowerCase().includes("insufficient") || errMsg.toLowerCase().includes("scope")) {
+        return NextResponse.redirect(
+          new URL(
+            "/admin/settings?gmail=error&message=" +
+              encodeURIComponent(
+                "Gmail API scope error. Make sure the Gmail API is enabled in your Google Cloud project (APIs & Services → Library → Gmail API → Enable), then try connecting again."
+              ),
+            baseUrl
+          )
+        );
+      }
+      throw scopeErr;
+    }
 
     // Store tokens in site_config
     const db = getDb();

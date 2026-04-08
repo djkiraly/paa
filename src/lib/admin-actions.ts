@@ -107,7 +107,22 @@ export async function testGmailConnectionAction(): Promise<{ ok: boolean; error?
   if (!config) {
     return { ok: false, error: "Gmail not fully configured. Save credentials and connect your account first." };
   }
-  return testGmailConnection(config);
+  try {
+    return await testGmailConnection(config);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Unknown error";
+    const lower = msg.toLowerCase();
+    if (lower.includes("insufficient") || lower.includes("scope")) {
+      return { ok: false, error: "Insufficient authentication scopes. Enable the Gmail API in Google Cloud Console (APIs & Services → Library → Gmail API), then disconnect and reconnect." };
+    }
+    if (lower.includes("invalid_grant") || lower.includes("token")) {
+      return { ok: false, error: "Token expired or revoked. Disconnect and reconnect Gmail." };
+    }
+    if (lower.includes("enotfound") || lower.includes("network") || lower.includes("fetch")) {
+      return { ok: false, error: "Could not reach Gmail API. Check server network connectivity." };
+    }
+    return { ok: false, error: msg };
+  }
 }
 
 export async function disconnectGmail(): Promise<void> {

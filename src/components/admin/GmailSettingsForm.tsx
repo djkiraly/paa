@@ -12,6 +12,31 @@ type Props = {
   initialValues: Record<string, string>;
 };
 
+const REDIRECT_URI =
+  ((typeof window !== "undefined" && window.location.origin) ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "") + "/api/gmail/callback";
+
+function friendlyError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("insufficient") && lower.includes("scope")) {
+    return "The Gmail API may not be enabled in your Google Cloud project. Go to APIs & Services → Library → search \"Gmail API\" → Enable, then disconnect and reconnect.";
+  }
+  if (lower.includes("invalid_grant")) {
+    return "Token expired or revoked. Click Disconnect, then Connect Gmail again.";
+  }
+  if (lower.includes("redirect_uri_mismatch")) {
+    return `Redirect URI mismatch. In Google Cloud Console, add this as an authorized redirect URI: ${REDIRECT_URI}`;
+  }
+  if (lower.includes("access_denied")) {
+    return "Access was denied during authorization. Make sure your Google account is added as a test user in the OAuth consent screen if the app is in testing mode.";
+  }
+  if (lower.includes("invalid_client")) {
+    return "Invalid OAuth credentials. Double-check the Client ID and Client Secret.";
+  }
+  return message;
+}
+
 export function GmailSettingsForm({ initialValues }: Props) {
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState("");
@@ -19,6 +44,8 @@ export function GmailSettingsForm({ initialValues }: Props) {
   const [testResult, setTestResult] = useState<{ ok: boolean; error?: string } | null>(null);
   const [isTesting, setIsTesting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
+  const [copiedUri, setCopiedUri] = useState(false);
   const searchParams = useSearchParams();
 
   const hasCredentials =
@@ -34,7 +61,7 @@ export function GmailSettingsForm({ initialValues }: Props) {
       setMessageType("success");
     } else if (gmailParam === "error") {
       const errorMsg = searchParams.get("message") || "Connection failed";
-      setMessage(errorMsg);
+      setMessage(friendlyError(decodeURIComponent(errorMsg)));
       setMessageType("error");
     }
   }, [searchParams]);
@@ -60,7 +87,12 @@ export function GmailSettingsForm({ initialValues }: Props) {
     setIsTesting(true);
     setTestResult(null);
     testGmailConnectionAction()
-      .then((result) => setTestResult(result))
+      .then((result) => {
+        if (!result.ok && result.error) {
+          result.error = friendlyError(result.error);
+        }
+        setTestResult(result);
+      })
       .catch(() => setTestResult({ ok: false, error: "Test request failed" }))
       .finally(() => setIsTesting(false));
   }
@@ -81,15 +113,21 @@ export function GmailSettingsForm({ initialValues }: Props) {
     });
   }
 
+  function copyRedirectUri() {
+    navigator.clipboard.writeText(REDIRECT_URI);
+    setCopiedUri(true);
+    setTimeout(() => setCopiedUri(false), 2000);
+  }
+
   return (
     <div className="rounded-xl border border-white/10 bg-[var(--paa-navy)] p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="text-base font-semibold text-[var(--paa-white)] font-[family-name:var(--font-barlow)]">
-            Gmail Notifications
+            Gmail Integration
           </h3>
           <p className="mt-1 text-sm text-[var(--paa-gray)]">
-            Email notifications for contact form submissions
+            Send emails on behalf of the organization — notifications, user invitations, and more
           </p>
         </div>
         <GmailStatusBadge
@@ -97,6 +135,86 @@ export function GmailSettingsForm({ initialValues }: Props) {
           isConnected={isConnected}
           testResult={testResult}
         />
+      </div>
+
+      {/* Setup Guide */}
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={() => setShowGuide(!showGuide)}
+          className="flex items-center gap-2 text-sm text-[var(--paa-accent-light)] hover:text-[var(--paa-accent)]"
+        >
+          <svg
+            className={`h-4 w-4 transition-transform ${showGuide ? "rotate-90" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          {showGuide ? "Hide setup guide" : "Show setup guide"}
+        </button>
+        {showGuide && (
+          <div className="mt-3 rounded-lg border border-white/5 bg-[var(--paa-midnight)] p-4 text-sm text-[var(--paa-gray)] space-y-3">
+            <p className="font-medium text-[var(--paa-white)]">Google Cloud Console Setup</p>
+            <ol className="list-decimal list-inside space-y-2">
+              <li>
+                Go to{" "}
+                <a
+                  href="https://console.cloud.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--paa-accent-light)] underline"
+                >
+                  Google Cloud Console
+                </a>{" "}
+                — create a project or use an existing one
+              </li>
+              <li>
+                <strong>Enable the Gmail API:</strong> Go to{" "}
+                <em>APIs &amp; Services → Library</em>, search for{" "}
+                <strong>&quot;Gmail API&quot;</strong>, and click <strong>Enable</strong>
+              </li>
+              <li>
+                <strong>Configure OAuth consent screen:</strong> Go to{" "}
+                <em>APIs &amp; Services → OAuth consent screen</em>. Choose <strong>External</strong>{" "}
+                (or Internal for Workspace). Add your email as a <strong>test user</strong> if in testing mode.
+              </li>
+              <li>
+                <strong>Add the send scope:</strong> In the consent screen scopes section, add{" "}
+                <code className="rounded bg-white/5 px-1 py-0.5">
+                  https://www.googleapis.com/auth/gmail.send
+                </code>
+              </li>
+              <li>
+                <strong>Create OAuth credentials:</strong> Go to{" "}
+                <em>APIs &amp; Services → Credentials → Create Credentials → OAuth client ID</em>.
+                Choose <strong>Web application</strong>.
+              </li>
+              <li>
+                <strong>Add this authorized redirect URI:</strong>
+              </li>
+            </ol>
+            <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-[var(--paa-navy)] px-3 py-2">
+              <code className="flex-1 text-xs text-[var(--paa-white)] break-all">
+                {REDIRECT_URI}
+              </code>
+              <button
+                type="button"
+                onClick={copyRedirectUri}
+                className="shrink-0 rounded px-2 py-1 text-xs text-[var(--paa-accent-light)] hover:bg-[var(--paa-accent)]/10"
+              >
+                {copiedUri ? "Copied!" : "Copy"}
+              </button>
+            </div>
+            <ol className="list-decimal list-inside" start={7}>
+              <li>
+                Copy the <strong>Client ID</strong> and <strong>Client Secret</strong> into the fields
+                below, save, then click <strong>Connect Gmail</strong>
+              </li>
+            </ol>
+          </div>
+        )}
       </div>
 
       {message && (
@@ -150,7 +268,7 @@ export function GmailSettingsForm({ initialValues }: Props) {
             className="w-full rounded-lg border border-white/10 bg-[var(--paa-midnight)] px-3 py-2 text-sm text-[var(--paa-white)] focus:border-[var(--paa-accent)] focus:outline-none"
           />
           <p className="mt-1 text-xs text-[var(--paa-gray)]">
-            Contact form submissions will be sent to this address.
+            Admin notifications (contact submissions, new registrations) will be sent to this address.
           </p>
         </div>
 
