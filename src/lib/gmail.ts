@@ -15,9 +15,16 @@ export type GmailConfig = {
 
 const REDIRECT_PATH = "/api/gmail/callback";
 
+function getSiteUrl(): string {
+  return (
+    process.env.SITE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "http://localhost:3000"
+  ).replace(/\/$/, "");
+}
+
 function getRedirectUri() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  return `${base.replace(/\/$/, "")}${REDIRECT_PATH}`;
+  return `${getSiteUrl()}${REDIRECT_PATH}`;
 }
 
 export function getOAuth2Client(clientId: string, clientSecret: string) {
@@ -167,7 +174,7 @@ export async function sendActivationEmail(
   config: GmailConfig,
   user: { name: string | null; email: string; activationToken: string }
 ): Promise<void> {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const siteUrl = getSiteUrl();
   const activationUrl = `${siteUrl}/admin/activate?token=${user.activationToken}`;
   const displayName = user.name || user.email;
   const subject = `You've been invited to PAA Admin`;
@@ -205,7 +212,7 @@ export async function sendVerificationEmail(
   config: GmailConfig,
   user: { name: string | null; email: string; activationToken: string }
 ): Promise<void> {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const siteUrl = getSiteUrl();
   const verifyUrl = `${siteUrl}/admin/verify-email?token=${user.activationToken}`;
   const displayName = user.name || user.email;
   const subject = "Verify your email — PAA Admin";
@@ -246,7 +253,7 @@ export async function sendApprovalEmail(
   config: GmailConfig,
   user: { name: string | null; email: string }
 ): Promise<void> {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const siteUrl = getSiteUrl();
   const loginUrl = `${siteUrl}/admin/login`;
   const displayName = user.name || user.email;
   const subject = "Your PAA Admin account has been approved";
@@ -278,7 +285,7 @@ export async function sendNewRegistrationNotification(
   config: GmailConfig,
   user: { name: string | null; email: string }
 ): Promise<void> {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const siteUrl = getSiteUrl();
   const usersUrl = `${siteUrl}/admin/users`;
   const displayName = user.name ? `${escapeHtml(user.name)} (${escapeHtml(user.email)})` : escapeHtml(user.email);
   const subject = `New registration awaiting approval — ${user.email}`;
