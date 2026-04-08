@@ -1,6 +1,6 @@
 [                                                                                                                                                                                              
     {                                                                                                                                                                                              "origin": ["https://paa.rocketcore.ai", "http://localhost:3000", "http://localhost:3002"],                                                                                             
-    "origin": ["https://paa.rocketcore.ai", "http://localhost:3000", "http://localhost:3002","https://plattevalleyaviationalliance.org"],
+    "origin": ["https://paa.rocketcore.ai", "http://localhost:3000", "http://localhost:3002","https://panhandleaviationalliance.org"],
     "method": ["PUT", "GET"],
       "responseHeader": ["Content-Type"],
       "maxAgeSeconds": 3600
