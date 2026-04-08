@@ -67,6 +67,12 @@ export function Navbar({ siteName, logoUrl }: { siteName: string; logoUrl?: stri
           >
             Get Involved
           </Link>
+          <Link
+            href="/admin/login"
+            className="rounded-full border border-white/20 px-5 py-2 font-heading text-sm font-bold uppercase tracking-wider text-paa-gray transition-colors hover:border-accent/50 hover:text-accent"
+          >
+            Login
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -124,6 +130,13 @@ export function Navbar({ siteName, logoUrl }: { siteName: string; logoUrl?: stri
             className="mt-2 rounded-full bg-accent px-5 py-3 text-center font-heading text-sm font-bold uppercase tracking-wider text-midnight transition-colors hover:bg-accent-light"
           >
             Get Involved
+          </Link>
+          <Link
+            href="/admin/login"
+            onClick={() => setMobileOpen(false)}
+            className="rounded-full border border-white/20 px-5 py-3 text-center font-heading text-sm font-bold uppercase tracking-wider text-paa-gray transition-colors hover:border-accent/50 hover:text-accent"
+          >
+            Login
           </Link>
         </div>
       </div>
