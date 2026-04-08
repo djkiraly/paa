@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx scripts/seed.ts",
+    "db:reset-password": "tsx scripts/reset-password.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
