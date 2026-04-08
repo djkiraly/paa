@@ -17,7 +17,14 @@ import {
 } from "@/db/schema";
 import { getGcsConfig, getGmailConfig } from "@/lib/admin-queries";
 import { testGcsConnection } from "@/lib/gcs";
-import { testGmailConnection, sendActivationEmail } from "@/lib/gmail";
+import {
+  testGmailConnection,
+  sendActivationEmail,
+  sendVerificationEmail,
+  sendApprovalEmail,
+  sendNewRegistrationNotification,
+} from "@/lib/gmail";
+import { isNotNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { and, isNull } from "drizzle-orm";
 
@@ -431,6 +438,11 @@ export async function activateAccount(
 
   if (!user) return { ok: false, error: "Invalid or expired activation link" };
 
+  // Block self-registered users from bypassing admin approval via activation endpoint
+  if (user.passwordHash) {
+    return { ok: false, error: "Invalid or expired activation link" };
+  }
+
   const passwordHash = await hash(password, 12);
   await d
     .update(users)
@@ -475,5 +487,177 @@ export async function resendActivationEmail(userId: string) {
     throw new Error("Gmail not configured — cannot send activation email");
   }
 
+  revalidatePath("/admin/users");
+}
+
+// Public Registration (NOT auth-gated)
+export async function registerAccount(
+  formData: FormData
+): Promise<{ ok: boolean; error?: string }> {
+  const name = (formData.get("name") as string)?.trim() || null;
+  const email = (formData.get("email") as string)?.toLowerCase().trim();
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  if (!email) return { ok: false, error: "Email is required" };
+  if (!password || password.length < 8) {
+    return { ok: false, error: "Password must be at least 8 characters" };
+  }
+  if (password !== confirmPassword) {
+    return { ok: false, error: "Passwords do not match" };
+  }
+
+  const d = db();
+
+  // Check for existing user
+  const [existing] = await d
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  if (existing) {
+    // Already active or admin-invited
+    if (existing.activatedAt || !existing.passwordHash) {
+      return { ok: false, error: "An account with this email already exists" };
+    }
+    // Verified but awaiting approval
+    if (existing.emailVerified) {
+      return {
+        ok: false,
+        error: "An account with this email is pending approval. Please contact an administrator.",
+      };
+    }
+    // Unverified self-registration — allow re-registration (overwrite password, resend verification)
+    const passwordHash = await hash(password, 12);
+    const activationToken = randomUUID();
+    await d
+      .update(users)
+      .set({ name, passwordHash, activationToken, updatedAt: new Date() })
+      .where(eq(users.id, existing.id));
+
+    getGmailConfig()
+      .then((config) => {
+        if (config) {
+          return sendVerificationEmail(config, { name, email, activationToken });
+        }
+      })
+      .catch((err) => console.error("Failed to send verification email:", err));
+
+    return { ok: true };
+  }
+
+  // New registration
+  const passwordHash = await hash(password, 12);
+  const activationToken = randomUUID();
+  await d.insert(users).values({
+    name,
+    email,
+    passwordHash,
+    activationToken,
+    role: "admin",
+  });
+
+  getGmailConfig()
+    .then((config) => {
+      if (config) {
+        return sendVerificationEmail(config, { name, email, activationToken });
+      }
+    })
+    .catch((err) => console.error("Failed to send verification email:", err));
+
+  return { ok: true };
+}
+
+// Email Verification (NOT auth-gated)
+export async function verifyEmail(
+  token: string
+): Promise<{ ok: boolean; error?: string }> {
+  if (!token) return { ok: false, error: "Invalid verification link" };
+
+  const d = db();
+  const [user] = await d
+    .select()
+    .from(users)
+    .where(
+      and(
+        eq(users.activationToken, token),
+        isNull(users.activatedAt),
+        isNotNull(users.passwordHash)
+      )
+    )
+    .limit(1);
+
+  if (!user) return { ok: false, error: "Invalid or expired verification link" };
+
+  if (user.emailVerified) {
+    return { ok: false, error: "Email already verified. Your account is awaiting admin approval." };
+  }
+
+  await d
+    .update(users)
+    .set({
+      emailVerified: new Date(),
+      activationToken: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+
+  // Notify admins of new registration awaiting approval
+  getGmailConfig()
+    .then((config) => {
+      if (config) {
+        return sendNewRegistrationNotification(config, {
+          name: user.name,
+          email: user.email,
+        });
+      }
+    })
+    .catch((err) => console.error("Failed to send admin notification:", err));
+
+  return { ok: true };
+}
+
+// Approve User (auth-gated)
+export async function approveUser(userId: string) {
+  await requireAuth();
+  const d = db();
+
+  const [user] = await d
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) throw new Error("User not found");
+  if (!user.passwordHash || !user.emailVerified) {
+    throw new Error("User has not completed registration and email verification");
+  }
+  if (user.activatedAt) throw new Error("User is already active");
+
+  await d
+    .update(users)
+    .set({ activatedAt: new Date(), updatedAt: new Date() })
+    .where(eq(users.id, userId));
+
+  // Send approval notification email
+  getGmailConfig()
+    .then((config) => {
+      if (config) {
+        return sendApprovalEmail(config, { name: user.name, email: user.email });
+      }
+    })
+    .catch((err) => console.error("Failed to send approval email:", err));
+
+  revalidatePath("/admin/users");
+}
+
+// Reject User (auth-gated — deletes the user)
+export async function rejectUser(userId: string) {
+  const session = await requireAuth();
+  if (session.user.id === userId) {
+    throw new Error("Cannot reject your own account");
+  }
+  await db().delete(users).where(eq(users.id, userId));
   revalidatePath("/admin/users");
 }

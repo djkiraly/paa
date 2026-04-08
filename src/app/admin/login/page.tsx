@@ -28,6 +28,15 @@ export default async function AdminLoginPage({
             </div>
           )}
           <AdminLoginForm />
+          <p className="mt-6 text-center text-sm text-[var(--paa-gray)]">
+            Don&apos;t have an account?{" "}
+            <a
+              href="/admin/register"
+              className="text-[var(--paa-accent-light)] hover:text-[var(--paa-accent)]"
+            >
+              Register
+            </a>
+          </p>
         </div>
       </div>
     </SessionProvider>

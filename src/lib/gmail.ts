@@ -201,6 +201,106 @@ export async function sendActivationEmail(
   await sendEmail(config, user.email, subject, body);
 }
 
+export async function sendVerificationEmail(
+  config: GmailConfig,
+  user: { name: string | null; email: string; activationToken: string }
+): Promise<void> {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const verifyUrl = `${siteUrl}/admin/verify-email?token=${user.activationToken}`;
+  const displayName = user.name || user.email;
+  const subject = "Verify your email — PAA Admin";
+  const body = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2d6eb5; margin-bottom: 16px;">Verify Your Email</h2>
+      <p style="color: #333; font-size: 16px;">
+        Hello ${escapeHtml(displayName)},
+      </p>
+      <p style="color: #333; font-size: 16px;">
+        Thank you for registering for the Panhandle Aviation Alliance admin portal.
+        Please verify your email address by clicking the button below.
+      </p>
+      <div style="margin: 32px 0; text-align: center;">
+        <a href="${verifyUrl}" style="display: inline-block; background: #2d6eb5; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+          Verify Email Address
+        </a>
+      </div>
+      <p style="color: #666; font-size: 14px;">
+        Or copy and paste this link into your browser:
+      </p>
+      <p style="color: #2d6eb5; font-size: 14px; word-break: break-all;">
+        ${verifyUrl}
+      </p>
+      <p style="color: #666; font-size: 14px; margin-top: 16px;">
+        After verifying, an administrator will review your account before you can sign in.
+      </p>
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 24px 0;" />
+      <p style="color: #999; font-size: 12px;">
+        If you did not create this account, you can safely ignore this email.
+      </p>
+    </div>
+  `;
+  await sendEmail(config, user.email, subject, body);
+}
+
+export async function sendApprovalEmail(
+  config: GmailConfig,
+  user: { name: string | null; email: string }
+): Promise<void> {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const loginUrl = `${siteUrl}/admin/login`;
+  const displayName = user.name || user.email;
+  const subject = "Your PAA Admin account has been approved";
+  const body = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2d6eb5; margin-bottom: 16px;">Account Approved</h2>
+      <p style="color: #333; font-size: 16px;">
+        Hello ${escapeHtml(displayName)},
+      </p>
+      <p style="color: #333; font-size: 16px;">
+        Your Panhandle Aviation Alliance admin account has been approved.
+        You can now sign in using the email and password you registered with.
+      </p>
+      <div style="margin: 32px 0; text-align: center;">
+        <a href="${loginUrl}" style="display: inline-block; background: #2d6eb5; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+          Sign In
+        </a>
+      </div>
+      <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 24px 0;" />
+      <p style="color: #999; font-size: 12px;">
+        If you have any questions, contact the site administrator.
+      </p>
+    </div>
+  `;
+  await sendEmail(config, user.email, subject, body);
+}
+
+export async function sendNewRegistrationNotification(
+  config: GmailConfig,
+  user: { name: string | null; email: string }
+): Promise<void> {
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  const usersUrl = `${siteUrl}/admin/users`;
+  const displayName = user.name ? `${escapeHtml(user.name)} (${escapeHtml(user.email)})` : escapeHtml(user.email);
+  const subject = `New registration awaiting approval — ${user.email}`;
+  const body = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #2d6eb5; margin-bottom: 16px;">New User Registration</h2>
+      <p style="color: #333; font-size: 16px;">
+        ${displayName} has registered and verified their email address on the PAA admin portal.
+      </p>
+      <p style="color: #333; font-size: 16px;">
+        Please review and approve or reject this registration.
+      </p>
+      <div style="margin: 32px 0; text-align: center;">
+        <a href="${usersUrl}" style="display: inline-block; background: #2d6eb5; color: #fff; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+          Review Users
+        </a>
+      </div>
+    </div>
+  `;
+  await sendEmail(config, config.notificationTo, subject, body);
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")

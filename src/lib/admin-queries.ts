@@ -173,15 +173,23 @@ export async function getGmailCredentialsRaw(): Promise<Record<string, string>> 
 }
 
 export async function getAllUsers() {
-  return db()
+  const result = await db()
     .select({
       id: users.id,
       name: users.name,
       email: users.email,
       role: users.role,
+      passwordHash: users.passwordHash,
+      emailVerified: users.emailVerified,
       activatedAt: users.activatedAt,
       createdAt: users.createdAt,
     })
     .from(users)
     .orderBy(users.createdAt);
+
+  // Convert passwordHash to boolean flag — never leak hashes to client
+  return result.map(({ passwordHash, ...rest }) => ({
+    ...rest,
+    hasPassword: !!passwordHash,
+  }));
 }
