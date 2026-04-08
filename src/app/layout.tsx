@@ -70,9 +70,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 
-  if (config.favicon_url) {
-    metadata.icons = { icon: config.favicon_url };
-  }
+  // Favicon is injected via <link> in <head> — see RootLayout below
 
   if (config.seo_google_verification) {
     metadata.verification = { google: config.seo_google_verification };
@@ -94,6 +92,11 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="dark">
+      <head>
+        {config.favicon_url && (
+          <link rel="icon" href={config.favicon_url} />
+        )}
+      </head>
       <body
         className={`${barlow.variable} ${sourceSerif.variable} ${jetbrains.variable} antialiased`}
       >

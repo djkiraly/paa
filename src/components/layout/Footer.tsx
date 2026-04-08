@@ -22,20 +22,16 @@ export function Footer({ siteName, tagline, contactEmail, location, logoUrl }: F
         <div className="grid gap-8 md:grid-cols-3">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={logoUrl || "/logo.png"}
-                alt={siteName}
-                width={44}
-                height={44}
-                className="rounded"
-              />
-              <div>
-                <div className="font-heading text-sm font-bold uppercase tracking-wider text-paa-white">
-                  {siteName}
-                </div>
-              </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logoUrl || "/logo.png"}
+              alt={siteName}
+              width={400}
+              height={400}
+              className="mb-4 w-full max-w-[400px] rounded"
+            />
+            <div className="font-heading text-sm font-bold uppercase tracking-wider text-paa-white">
+              {siteName}
             </div>
             <p className="mt-4 text-sm leading-relaxed text-paa-gray">
               {tagline}
