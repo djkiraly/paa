@@ -18,15 +18,31 @@ export function AdminLoginForm() {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
+    // Get reCAPTCHA token if enabled
+    let recaptchaToken: string | undefined;
+    const siteKey = (window as unknown as Record<string, unknown>).__RECAPTCHA_SITE_KEY__ as string | undefined;
+    if (siteKey && typeof grecaptcha !== "undefined") {
+      try {
+        recaptchaToken = await grecaptcha.execute(siteKey, { action: "login" });
+      } catch {
+        // Continue without reCAPTCHA
+      }
+    }
+
     // Pre-check for specific account states
     try {
       const check = await fetch("/api/auth/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, recaptchaToken }),
       });
       const { error: checkError } = await check.json();
 
+      if (checkError === "recaptcha_failed") {
+        setLoading(false);
+        setError("Security verification failed. Please try again.");
+        return;
+      }
       if (checkError === "pending_verification") {
         setLoading(false);
         setError("Your email has not been verified yet. Please check your inbox for the verification link.");

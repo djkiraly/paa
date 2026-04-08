@@ -105,6 +105,35 @@ export async function getGcsConfig(): Promise<GcsConfig | null> {
   };
 }
 
+const POLICY_KEYS = [
+  "policy_privacy",
+  "policy_terms",
+] as const;
+
+export async function getPolicySettingsRaw(): Promise<Record<string, string>> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...POLICY_KEYS]));
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+const RECAPTCHA_KEYS = [
+  "recaptcha_enabled",
+  "recaptcha_site_key",
+  "recaptcha_secret_key",
+] as const;
+
+export async function getRecaptchaSettingsRaw(): Promise<Record<string, string>> {
+  const d = db();
+  const rows = await d
+    .select({ key: siteConfig.key, value: siteConfig.value })
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...RECAPTCHA_KEYS]));
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
 const GENERAL_KEYS = [
   "site_name",
   "tagline",

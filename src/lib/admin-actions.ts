@@ -26,6 +26,7 @@ import {
   sendNewRegistrationNotification,
 } from "@/lib/gmail";
 import { isNotNull } from "drizzle-orm";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 import { randomUUID } from "crypto";
 import { and, isNull } from "drizzle-orm";
 
@@ -39,6 +40,59 @@ async function requireAuth() {
   const session = await auth();
   if (!session?.user) throw new Error("Unauthorized");
   return session;
+}
+
+// Policy Settings
+export async function savePolicySettings(formData: FormData) {
+  await requireAuth();
+  const d = db();
+
+  const keys = ["policy_privacy", "policy_terms"] as const;
+  for (const key of keys) {
+    const value = (formData.get(key) as string) || "";
+    if (value) {
+      await d
+        .insert(siteConfig)
+        .values({ key, value })
+        .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+    } else {
+      await d.delete(siteConfig).where(eq(siteConfig.key, key));
+    }
+  }
+
+  revalidatePath("/admin/settings");
+  revalidatePath("/privacy");
+  revalidatePath("/terms");
+}
+
+// reCAPTCHA Settings
+export async function saveRecaptchaSettings(formData: FormData) {
+  await requireAuth();
+  const d = db();
+
+  const enabled = formData.get("recaptcha_enabled") === "true" ? "true" : "";
+  const siteKey = (formData.get("recaptcha_site_key") as string)?.trim() || "";
+  const secretKey = (formData.get("recaptcha_secret_key") as string)?.trim() || "";
+
+  const entries = [
+    { key: "recaptcha_enabled", value: enabled },
+    { key: "recaptcha_site_key", value: siteKey },
+    { key: "recaptcha_secret_key", value: secretKey },
+  ];
+
+  for (const { key, value } of entries) {
+    if (value) {
+      await d
+        .insert(siteConfig)
+        .values({ key, value })
+        .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+    } else {
+      await d.delete(siteConfig).where(eq(siteConfig.key, key));
+    }
+  }
+
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
 }
 
 // SEO Settings
@@ -677,6 +731,13 @@ export async function registerAccount(
   }
   if (password !== confirmPassword) {
     return { ok: false, error: "Passwords do not match" };
+  }
+
+  // Verify reCAPTCHA
+  const recaptchaToken = formData.get("recaptchaToken") as string | null;
+  const recaptchaResult = await verifyRecaptcha(recaptchaToken, "register");
+  if (!recaptchaResult.ok) {
+    return { ok: false, error: "Security verification failed. Please try again." };
   }
 
   const d = db();

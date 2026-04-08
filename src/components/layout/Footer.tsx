@@ -83,10 +83,21 @@ export function Footer({ siteName, tagline, contactEmail, location, logoUrl }: F
               &copy; {new Date().getFullYear()} {siteName}. All
               rights reserved.
             </p>
-            <p className="text-xs text-paa-gray/60">
-              Statistics are estimates based on public data sources. See
-              individual source citations for details.
-            </p>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/privacy"
+                className="text-xs text-paa-gray/60 transition-colors hover:text-accent"
+              >
+                Privacy Policy
+              </Link>
+              <span className="text-xs text-paa-gray/30">|</span>
+              <Link
+                href="/terms"
+                className="text-xs text-paa-gray/60 transition-colors hover:text-accent"
+              >
+                Terms &amp; Conditions
+              </Link>
+            </div>
           </div>
         </div>
       </div>

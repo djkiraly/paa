@@ -51,11 +51,17 @@ export function AdminSidebar() {
       </nav>
       <div className="absolute bottom-0 left-0 w-full border-t border-white/10 p-4">
         <button
-          onClick={() => signOut({ callbackUrl: "/admin/login" })}
+          onClick={async () => {
+            await signOut({ redirect: false });
+            window.location.href = "/admin/login";
+          }}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--paa-gray)] transition-colors hover:bg-white/5 hover:text-[var(--paa-white)]"
         >
           Sign Out
         </button>
+        <p className="mt-2 text-center text-xs text-[var(--paa-gray)]/40">
+          v{process.env.APP_VERSION}
+        </p>
       </div>
     </aside>
   );

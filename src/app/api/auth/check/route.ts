@@ -3,11 +3,18 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { users } from "@/db/schema";
 import { compare } from "bcryptjs";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
+  const { email, password, recaptchaToken } = await request.json();
   if (!email || !password) {
     return NextResponse.json({ error: "invalid_credentials" });
+  }
+
+  // Verify reCAPTCHA
+  const recaptchaResult = await verifyRecaptcha(recaptchaToken, "login");
+  if (!recaptchaResult.ok) {
+    return NextResponse.json({ error: "recaptcha_failed" });
   }
 
   const db = getDb();

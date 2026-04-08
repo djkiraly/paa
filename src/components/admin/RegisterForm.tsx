@@ -26,6 +26,17 @@ export function RegisterForm() {
       return;
     }
 
+    // Get reCAPTCHA token if enabled
+    const siteKey = (window as unknown as Record<string, unknown>).__RECAPTCHA_SITE_KEY__ as string | undefined;
+    if (siteKey && typeof grecaptcha !== "undefined") {
+      try {
+        const token = await grecaptcha.execute(siteKey, { action: "register" });
+        formData.set("recaptchaToken", token);
+      } catch {
+        // Continue without reCAPTCHA
+      }
+    }
+
     setLoading(true);
     const result = await registerAccount(formData);
     setLoading(false);

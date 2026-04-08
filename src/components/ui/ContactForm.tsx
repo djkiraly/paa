@@ -14,12 +14,24 @@ export function ContactForm() {
     setErrorMsg("");
 
     const form = e.currentTarget;
+    // Get reCAPTCHA token if enabled
+    let recaptchaToken: string | undefined;
+    const siteKey = (window as unknown as Record<string, unknown>).__RECAPTCHA_SITE_KEY__ as string | undefined;
+    if (siteKey && typeof grecaptcha !== "undefined") {
+      try {
+        recaptchaToken = await grecaptcha.execute(siteKey, { action: "contact" });
+      } catch {
+        // reCAPTCHA failed to execute — continue without it
+      }
+    }
+
     const data = {
       name: (form.elements.namedItem("name") as HTMLInputElement).value,
       email: (form.elements.namedItem("email") as HTMLInputElement).value,
       organization: (form.elements.namedItem("organization") as HTMLInputElement).value || undefined,
       message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
       type: "general",
+      recaptchaToken,
     };
 
     try {

@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { contactSubmissions } from "@/db/schema";
 import { getGmailConfig } from "@/lib/admin-queries";
 import { sendContactNotification } from "@/lib/gmail";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 const contactSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
@@ -17,6 +18,12 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsed = contactSchema.parse(body);
+
+    // Verify reCAPTCHA
+    const recaptchaResult = await verifyRecaptcha(body.recaptchaToken, "contact");
+    if (!recaptchaResult.ok) {
+      return NextResponse.json({ error: recaptchaResult.error }, { status: 403 });
+    }
 
     const db = getDb();
     if (!db) {

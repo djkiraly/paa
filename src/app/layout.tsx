@@ -81,16 +81,35 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadata;
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const config = await getSiteConfig();
+  const recaptchaSiteKey =
+    config.recaptcha_enabled === "true" && config.recaptcha_site_key
+      ? config.recaptcha_site_key
+      : null;
+
   return (
     <html lang="en" className="dark">
       <body
         className={`${barlow.variable} ${sourceSerif.variable} ${jetbrains.variable} antialiased`}
       >
+        {recaptchaSiteKey && (
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `window.__RECAPTCHA_SITE_KEY__=${JSON.stringify(recaptchaSiteKey)};`,
+              }}
+            />
+            <script
+              src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`}
+              async
+            />
+          </>
+        )}
         {children}
       </body>
     </html>

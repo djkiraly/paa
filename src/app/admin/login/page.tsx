@@ -16,10 +16,10 @@ export default async function AdminLoginPage({
         <div className="w-full max-w-md rounded-xl border border-white/10 bg-[var(--paa-navy)] p-8">
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-bold text-[var(--paa-white)] font-[family-name:var(--font-barlow)]">
-              PAA Admin
+              PAA LOGIN
             </h1>
             <p className="mt-2 text-sm text-[var(--paa-gray)]">
-              Sign in to manage your site
+              Members and Admins Only
             </p>
           </div>
           {activated === "true" && (
