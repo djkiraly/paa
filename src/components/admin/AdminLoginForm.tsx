@@ -15,9 +15,40 @@ export function AdminLoginForm() {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    // Pre-check for specific account states
+    try {
+      const check = await fetch("/api/auth/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const { error: checkError } = await check.json();
+
+      if (checkError === "pending_verification") {
+        setLoading(false);
+        setError("Your email has not been verified yet. Please check your inbox for the verification link.");
+        return;
+      }
+      if (checkError === "pending_approval") {
+        setLoading(false);
+        setError("Your account is awaiting admin approval. You will receive an email when your account is approved.");
+        return;
+      }
+      if (checkError === "pending_activation") {
+        setLoading(false);
+        setError("Your account has not been activated yet. Please check your inbox for the activation link.");
+        return;
+      }
+    } catch {
+      // If check fails, fall through to normal signIn
+    }
+
     const result = await signIn("credentials", {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
+      email,
+      password,
       redirect: false,
     });
 
