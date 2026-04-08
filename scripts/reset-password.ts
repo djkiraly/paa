@@ -30,7 +30,7 @@ async function resetPassword() {
   }
 
   const passwordHash = hashSync(newPassword, 12);
-  await db.update(users).set({ passwordHash }).where(eq(users.email, email));
+  await db.update(users).set({ passwordHash, activatedAt: new Date() }).where(eq(users.email, email));
 
   console.log(`Password reset for ${email}`);
 }
