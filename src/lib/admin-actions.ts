@@ -27,6 +27,7 @@ import {
 } from "@/lib/gmail";
 import { isNotNull } from "drizzle-orm";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { logAudit } from "@/lib/audit";
 import { randomUUID } from "crypto";
 import { and, isNull } from "drizzle-orm";
 
@@ -339,26 +340,29 @@ export async function deleteStat(id: number) {
 
 // Initiatives CRUD
 export async function createInitiative(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
+  const title = formData.get("title") as string;
   await db().insert(initiatives).values({
-    title: formData.get("title") as string,
+    title,
     description: formData.get("description") as string,
     icon: (formData.get("icon") as string) || null,
     status: (formData.get("status") as string) || "active",
     category: (formData.get("category") as string) || null,
     orderIndex: Number(formData.get("orderIndex") || 0),
   });
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "CREATE", entityType: "initiative", entityName: title });
   revalidatePath("/admin/initiatives");
   revalidatePath("/");
 }
 
 export async function updateInitiative(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
   const id = Number(formData.get("id"));
+  const title = formData.get("title") as string;
   await db()
     .update(initiatives)
     .set({
-      title: formData.get("title") as string,
+      title,
       description: formData.get("description") as string,
       icon: (formData.get("icon") as string) || null,
       status: (formData.get("status") as string) || "active",
@@ -367,39 +371,44 @@ export async function updateInitiative(formData: FormData) {
       updatedAt: new Date(),
     })
     .where(eq(initiatives.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "UPDATE", entityType: "initiative", entityId: String(id), entityName: title });
   revalidatePath("/admin/initiatives");
   revalidatePath("/");
 }
 
 export async function deleteInitiative(id: number) {
-  await requireAuth();
+  const session = await requireAuth();
   await db().delete(initiatives).where(eq(initiatives.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "DELETE", entityType: "initiative", entityId: String(id) });
   revalidatePath("/admin/initiatives");
   revalidatePath("/");
 }
 
 // Leadership CRUD
 export async function createLeader(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
+  const name = formData.get("name") as string;
   await db().insert(leadership).values({
-    name: formData.get("name") as string,
+    name,
     title: formData.get("title") as string,
     organization: (formData.get("organization") as string) || null,
     bio: (formData.get("bio") as string) || null,
     imageUrl: (formData.get("imageUrl") as string) || null,
     orderIndex: Number(formData.get("orderIndex") || 0),
   });
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "CREATE", entityType: "leadership", entityName: name });
   revalidatePath("/admin/leadership");
   revalidatePath("/about");
 }
 
 export async function updateLeader(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
   const id = Number(formData.get("id"));
+  const name = formData.get("name") as string;
   await db()
     .update(leadership)
     .set({
-      name: formData.get("name") as string,
+      name,
       title: formData.get("title") as string,
       organization: (formData.get("organization") as string) || null,
       bio: (formData.get("bio") as string) || null,
@@ -408,38 +417,43 @@ export async function updateLeader(formData: FormData) {
       updatedAt: new Date(),
     })
     .where(eq(leadership.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "UPDATE", entityType: "leadership", entityId: String(id), entityName: name });
   revalidatePath("/admin/leadership");
   revalidatePath("/about");
 }
 
 export async function deleteLeader(id: number) {
-  await requireAuth();
+  const session = await requireAuth();
   await db().delete(leadership).where(eq(leadership.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "DELETE", entityType: "leadership", entityId: String(id) });
   revalidatePath("/admin/leadership");
   revalidatePath("/about");
 }
 
 // Partners CRUD
 export async function createPartner(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
+  const name = formData.get("name") as string;
   await db().insert(partners).values({
-    name: formData.get("name") as string,
+    name,
     logoUrl: (formData.get("logoUrl") as string) || null,
     websiteUrl: (formData.get("websiteUrl") as string) || null,
     tier: (formData.get("tier") as string) || "supporter",
     orderIndex: Number(formData.get("orderIndex") || 0),
   });
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "CREATE", entityType: "partner", entityName: name });
   revalidatePath("/admin/partners");
   revalidatePath("/");
 }
 
 export async function updatePartner(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
   const id = Number(formData.get("id"));
+  const name = formData.get("name") as string;
   await db()
     .update(partners)
     .set({
-      name: formData.get("name") as string,
+      name,
       logoUrl: (formData.get("logoUrl") as string) || null,
       websiteUrl: (formData.get("websiteUrl") as string) || null,
       tier: (formData.get("tier") as string) || "supporter",
@@ -447,20 +461,23 @@ export async function updatePartner(formData: FormData) {
       updatedAt: new Date(),
     })
     .where(eq(partners.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "UPDATE", entityType: "partner", entityId: String(id), entityName: name });
   revalidatePath("/admin/partners");
   revalidatePath("/");
 }
 
 export async function deletePartner(id: number) {
-  await requireAuth();
+  const session = await requireAuth();
   await db().delete(partners).where(eq(partners.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "DELETE", entityType: "partner", entityId: String(id) });
   revalidatePath("/admin/partners");
   revalidatePath("/");
 }
 
 // Sections CRUD
 export async function createSection(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
+  const title = (formData.get("title") as string) || (formData.get("sectionSlug") as string);
   await db().insert(pageSections).values({
     pageSlug: formData.get("pageSlug") as string,
     sectionSlug: formData.get("sectionSlug") as string,
@@ -469,12 +486,14 @@ export async function createSection(formData: FormData) {
     content: (formData.get("content") as string) || null,
     orderIndex: Number(formData.get("orderIndex") || 0),
   });
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "CREATE", entityType: "section", entityName: title });
   revalidatePath("/admin/sections");
 }
 
 export async function updateSection(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
   const id = Number(formData.get("id"));
+  const title = (formData.get("title") as string) || (formData.get("sectionSlug") as string);
   await db()
     .update(pageSections)
     .set({
@@ -487,28 +506,32 @@ export async function updateSection(formData: FormData) {
       updatedAt: new Date(),
     })
     .where(eq(pageSections.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "UPDATE", entityType: "section", entityId: String(id), entityName: title });
   revalidatePath("/admin/sections");
 }
 
 export async function deleteSection(id: number) {
-  await requireAuth();
+  const session = await requireAuth();
   await db().delete(pageSections).where(eq(pageSections.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "DELETE", entityType: "section", entityId: String(id) });
   revalidatePath("/admin/sections");
 }
 
 // Contacts
 export async function markContactRead(id: number) {
-  await requireAuth();
+  const session = await requireAuth();
   await db()
     .update(contactSubmissions)
     .set({ read: true })
     .where(eq(contactSubmissions.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "MARK_READ", entityType: "contact", entityId: String(id) });
   revalidatePath("/admin/contacts");
 }
 
 export async function deleteContact(id: number) {
-  await requireAuth();
+  const session = await requireAuth();
   await db().delete(contactSubmissions).where(eq(contactSubmissions.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "DELETE", entityType: "contact", entityId: String(id) });
   revalidatePath("/admin/contacts");
 }
 
@@ -583,7 +606,7 @@ export async function bulkImportTenants(
 
 // Users CRUD
 export async function createUser(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
   const activationToken = randomUUID();
   const email = formData.get("email") as string;
   const name = (formData.get("name") as string) || null;
@@ -593,6 +616,8 @@ export async function createUser(formData: FormData) {
     role: (formData.get("role") as string) || "admin",
     activationToken,
   });
+
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "CREATE", entityType: "user", entityName: email });
 
   // Send activation email (fire-and-forget)
   getGmailConfig()
@@ -607,22 +632,24 @@ export async function createUser(formData: FormData) {
 }
 
 export async function updateUser(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
   const id = formData.get("id") as string;
+  const email = formData.get("email") as string;
   await db()
     .update(users)
     .set({
       name: (formData.get("name") as string) || null,
-      email: formData.get("email") as string,
+      email,
       role: (formData.get("role") as string) || "admin",
       updatedAt: new Date(),
     })
     .where(eq(users.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "UPDATE", entityType: "user", entityId: id, entityName: email });
   revalidatePath("/admin/users");
 }
 
 export async function resetUserPassword(formData: FormData) {
-  await requireAuth();
+  const session = await requireAuth();
   const id = formData.get("id") as string;
   const password = formData.get("password") as string;
   if (!password || password.length < 8) {
@@ -633,6 +660,7 @@ export async function resetUserPassword(formData: FormData) {
     .update(users)
     .set({ passwordHash, updatedAt: new Date() })
     .where(eq(users.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "RESET_PASSWORD", entityType: "user", entityId: id });
   revalidatePath("/admin/users");
 }
 
@@ -642,6 +670,7 @@ export async function deleteUser(id: string) {
     throw new Error("Cannot delete your own account");
   }
   await db().delete(users).where(eq(users.id, id));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "DELETE", entityType: "user", entityId: id });
   revalidatePath("/admin/users");
 }
 
@@ -853,7 +882,7 @@ export async function verifyEmail(
 
 // Approve User (auth-gated)
 export async function approveUser(userId: string) {
-  await requireAuth();
+  const session = await requireAuth();
   const d = db();
 
   const [user] = await d
@@ -872,6 +901,8 @@ export async function approveUser(userId: string) {
     .update(users)
     .set({ activatedAt: new Date(), updatedAt: new Date() })
     .where(eq(users.id, userId));
+
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "APPROVE", entityType: "user", entityId: userId, entityName: user.email });
 
   // Send approval notification email
   getGmailConfig()
@@ -892,5 +923,6 @@ export async function rejectUser(userId: string) {
     throw new Error("Cannot reject your own account");
   }
   await db().delete(users).where(eq(users.id, userId));
+  logAudit({ userId: session.user.id, userEmail: session.user.email!, action: "REJECT", entityType: "user", entityId: userId });
   revalidatePath("/admin/users");
 }

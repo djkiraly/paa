@@ -14,6 +14,7 @@ const navItems = [
   { href: "/admin/tenants", label: "Tenants", icon: "🏢" },
   { href: "/admin/contacts", label: "Contacts", icon: "✉️" },
   { href: "/admin/users", label: "Users", icon: "🔑" },
+  { href: "/admin/audit", label: "Audit Log", icon: "📋" },
   { href: "/admin/settings", label: "Settings", icon: "⚙️" },
 ];
 
